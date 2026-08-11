@@ -128,6 +128,11 @@
   // 批量翻译。translateFn(text) -> Promise<string>；失败的片段保留原文，
   // 让用户至少拿到一个结构完整、部分翻译的文件，而不是整份失败。
   //
+  // 但"保留原文"必须可见：引擎整条链路挂掉时（没配 Key、AI 档没登录、
+  // 官网接口 404），每个片段都失败、每个都退回原文，最后交出一份和输入
+  // 一模一样的文件还显示"完成"。所以返回值带上 failed/firstError，
+  // 调用方能判断"部分没翻"和"根本没翻"。
+  //
   // 多个片段拼成一个请求（按 \n 对齐拆回）：字幕文件动辄上千行，逐行请求
   // 一部 90 分钟纪录片要 6 分多钟；50 行一批直接压到半分钟内。引擎返回的
   // 行数对不上这一批就落回逐行，正确性不赌批量。
@@ -151,8 +156,14 @@
     flush();
 
     let done = 0;
+    let translated = 0;
+    let failed = 0;
+    let firstError = null;
     const total = idxs.length;
     const queue = batches.slice();
+    const noteError = (err) => {
+      if (!firstError) firstError = (err && err.message) || String(err);
+    };
     const workers = Array.from({ length: Math.min(concurrency, queue.length || 1) }, async () => {
       for (;;) {
         const batch = queue.shift();
@@ -164,18 +175,24 @@
             const lines = String((await translateFn(joined)) || '').split('\n');
             if (lines.length === batch.length) {
               batch.forEach((i, k) => {
-                if (lines[k] && lines[k].trim()) out[i] = keepEdgeSpace(parts[i].text, lines[k]);
+                if (lines[k] && lines[k].trim()) {
+                  out[i] = keepEdgeSpace(parts[i].text, lines[k]);
+                  translated++;
+                } else {
+                  failed++;
+                }
               });
               ok = true;
             }
-          } catch (_) { /* 落回逐行 */ }
+          } catch (err) { noteError(err); /* 落回逐行 */ }
         }
         if (!ok) {
           for (const i of batch) {
             try {
               const t = await translateFn(parts[i].text);
-              if (t) out[i] = keepEdgeSpace(parts[i].text, t);
-            } catch (_) { /* 保留原文 */ }
+              if (t) { out[i] = keepEdgeSpace(parts[i].text, t); translated++; }
+              else failed++;
+            } catch (err) { noteError(err); failed++; /* 保留原文 */ }
           }
         }
         done += batch.length;
@@ -183,7 +200,7 @@
       }
     });
     await Promise.all(workers);
-    return join(out);
+    return { text: join(out), total, translated, failed, firstError };
   }
 
   // 片段两端的空白是排版的一部分（md 行内片段尤其明显），翻译服务会吃掉它们。
