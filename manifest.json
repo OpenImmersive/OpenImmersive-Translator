@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "OpenImmersive Translator",
-  "version": "1.13.0",
+  "version": "1.14.0",
   "description": "开源、隐私优先的双语翻译插件，装完即用。整页双语对照、按住 Alt 悬停翻译单段、选中划词翻译、输入框内 Alt+Enter 把你写的内容译成外语、右键菜单一键翻译、可设「总是翻译此网站」自动双语。多引擎（免费 Google 默认 / 自带 DeepL·OpenAI 等 Key）。所有翻译请求直接从浏览器发往所选引擎，无中间服务器、零数据收集。可选敏感信息脱敏：邮箱/电话/卡号/API Key 本地打码后才发出，翻译后自动还原。",
   "author": "OpenImmersive",
   "homepage_url": "https://github.com/OpenImmersive/Open-Immersive-Translator",
