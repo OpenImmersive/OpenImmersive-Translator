@@ -35,8 +35,24 @@
   ]);
 
   const SKIP_ROLES = new Set([
-    'navigation', 'menubar', 'menu', 'toolbar', 'search', 'banner'
+    'navigation', 'menubar', 'menu', 'toolbar', 'search', 'banner',
+    // 侧栏/页脚/标签条：都是界面而非正文（X 的「For you / Following」是 tablist）
+    'complementary', 'contentinfo', 'tablist', 'tab'
   ]);
+
+  // ===== 站点适配 =====
+  // 通用规则在少数几个站上判不准，这里按站点补一条明确的「别碰这块」。
+  // X：左侧导航、右栏（趋势/推荐关注/页脚链接）都是界面，沉浸式翻译两侧也都不翻；
+  // 我们此前是"长词条翻、短词条不翻"，看起来像随机挑着翻。
+  const SITE_SKIP = {
+    x: '[data-testid="sidebarColumn"], [data-testid="DMDrawer"], [data-testid="primaryColumn"] [role="tablist"]',
+  };
+
+  function siteKey() {
+    return /(^|\.)(x|twitter)\.com$/.test(location.hostname) ? 'x' : '';
+  }
+
+  const SITE = siteKey();
 
   // ===== 消息监听（来自popup）=====
   api.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
@@ -584,9 +600,67 @@
     return blocks.filter(el => !blocks.some(other => other !== el && el.contains(other)));
   }
 
+  // X 把一条推文的正文全放进一个 div，段落之间只靠 <br> 分隔。整块送去翻译
+  // 就得到一大坨贴在推文末尾（用户报的「整篇翻译」）。按 <br> 把正文切成段、
+  // 每段包一层 span 单独成块，译文才跟在各自那段后面——沉浸式翻译在 X 上就是
+  // 这个粒度。包一层而不是直接翻，是为了让下游的 translateBlock/injectTranslation/
+  // removeTranslations 一行都不用改。
+  function splitTweetParagraphs(root) {
+    if (root.dataset.yllSplit) {
+      return Array.from(root.children).filter(c => c.dataset && c.dataset.yllPara);
+    }
+
+    const groups = [];
+    let cur = [];
+    for (const node of Array.from(root.childNodes)) {
+      if (node.nodeType === Node.ELEMENT_NODE && node.tagName === 'BR') {
+        if (cur.length) { groups.push(cur); cur = []; }
+        continue; // <br> 留在原地，段与段之间的空行不能丢
+      }
+      cur.push(node);
+    }
+    if (cur.length) groups.push(cur);
+
+    root.dataset.yllSplit = '1';
+    if (groups.length < 2) return []; // 单段推文没必要切，走原来的整块路径
+
+    const wrappers = [];
+    for (const nodes of groups) {
+      const wrap = document.createElement('span');
+      wrap.setAttribute('data-yll-para', '1');
+      wrap.style.display = 'block';
+      root.insertBefore(wrap, nodes[0]);
+      for (const n of nodes) wrap.appendChild(n);
+      wrappers.push(wrap);
+    }
+    return wrappers;
+  }
+
+  function collectTweetBlocks(seen, results) {
+    for (const tweet of document.querySelectorAll('[data-testid="tweetText"]')) {
+      if (!shouldTranslate(tweet)) continue;
+      const paras = splitTweetParagraphs(tweet);
+      // 切开后原容器本身不能再当块，否则兜底分支会把它当叶子整条再翻一遍
+      if (paras.length) seen.add(tweet);
+      // 切不动（单段）就整块当一个块，行为和以前一样
+      for (const el of paras.length ? paras : [tweet]) {
+        if (seen.has(el)) continue;
+        const text = extractText(el);
+        if (!text || text.trim().length < 2) continue;
+        if (!/\p{L}/u.test(text)) continue;
+        seen.add(el);
+        results.push(el);
+      }
+    }
+  }
+
   function collectBlocks() {
     const results = [];
     const seen = new WeakSet();
+
+    // X 的正文不是 p/li，通用选择器一个都命中不到，会落到兜底的"叶子块"分支去
+    // 猜——推文这种结构明确的东西不该靠猜。个人简介之类仍交给后面的通用流程。
+    if (SITE === 'x') collectTweetBlocks(seen, results);
 
     // 优先选择语义化文本块
     const selector = [
@@ -642,16 +716,23 @@
     // 跳过标签
     if (SKIP_TAGS.has(el.tagName)) return false;
 
+    // 站点级排除区（见 SITE_SKIP）
+    if (SITE && SITE_SKIP[SITE] && el.closest(SITE_SKIP[SITE])) return false;
+
     // 跳过导航、页眉、页脚等。header/footer 只在页面级（不在 article/main 里）
     // 才算页头页脚——新闻站的头条区常包在文章内的 <header> 里，连坐会把
     // 正文标题整个漏掉（Reuters 频道页头条就是这样丢的）。
-    const container = el.closest('nav, header, footer, aside, [role]');
-    if (container) {
-      const tag = container.tagName;
+    //
+    // 必须逐层往上看，不能只看最近的一个：closest() 命中的常常是里层一个
+    // 无害的 [role="link"]/[role="button"]，外面真正的 <nav> 就再也问不到了
+    //（X 几乎每个元素都套着这类 role，导航栏因此整个漏进来被翻译）。
+    for (let anc = el.closest('nav, header, footer, aside, [role]'); anc; ) {
+      const tag = anc.tagName;
       if (['NAV', 'ASIDE'].includes(tag)) return false;
-      if (['HEADER', 'FOOTER'].includes(tag) && !container.closest('article, main')) return false;
-      const role = container.getAttribute('role');
+      if (['HEADER', 'FOOTER'].includes(tag) && !anc.closest('article, main')) return false;
+      const role = anc.getAttribute('role');
       if (role && SKIP_ROLES.has(role)) return false;
+      anc = anc.parentElement ? anc.parentElement.closest('nav, header, footer, aside, [role]') : null;
     }
 
     // 跳过包含代码的块
@@ -831,6 +912,15 @@
       wrap.remove();
     });
     document.querySelectorAll('[data-yll-done]').forEach(el => delete el.dataset.yllDone);
+    // X 推文按段包的那层 span：把子节点挪回去再删壳，推文恢复成原来的样子
+    document.querySelectorAll('[data-yll-para]').forEach(wrap => {
+      const parent = wrap.parentNode;
+      if (parent) {
+        while (wrap.firstChild) parent.insertBefore(wrap.firstChild, wrap);
+      }
+      wrap.remove();
+    });
+    document.querySelectorAll('[data-yll-split]').forEach(el => delete el.dataset.yllSplit);
     state.isTranslated = false;
     state.translatedCount = 0;
     state.totalCount = 0;
@@ -902,6 +992,7 @@
       isVisuallyHidden,
       looksLikeNameList,
       minTextLen,
+      splitTweetParagraphs,
       setDisplayMode: (m) => { state.displayMode = m; }
     };
   }
