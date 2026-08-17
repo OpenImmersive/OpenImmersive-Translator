@@ -48,7 +48,7 @@
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  background: #0d9488;
+  background: #c2402a;
   color: #ffffff;
   font-size: 18px;
   line-height: 40px;
@@ -99,8 +99,8 @@
 }
 
 .yll-ball-item:hover {
-  background: #f0fdfa;
-  color: #0d9488;
+  background: #fcf2ef;
+  color: #c2402a;
 }
 
 /* 划词翻译弹窗 */
@@ -199,7 +199,7 @@
 
 #yll-progress-bar {
   height: 100%;
-  background: linear-gradient(90deg, #5dade2, #1a5276);
+  background: linear-gradient(90deg, #d2705a, #c2402a);
   transition: width 0.3s ease;
   border-radius: 0 2px 2px 0;
 }
