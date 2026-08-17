@@ -1,0 +1,473 @@
+{
+  "extName": {
+    "message": "OpenImmersive Translator"
+  },
+  "extDesc": {
+    "message": "开源、隐私优先的双语网页翻译插件，支持PDF翻译（保留排版、译文可复制）。预集成免费引擎，支持BYOK，所有请求直接从浏览器发出，无中间服务器，零数据收集。"
+  },
+  "popupTranslatePage": {
+    "message": "翻译此页"
+  },
+  "popupRestore": {
+    "message": "恢复原文"
+  },
+  "popupTranslateTo": {
+    "message": "翻译成"
+  },
+  "popupHover": {
+    "message": "悬停翻译（按住 Alt 划过段落）"
+  },
+  "popupAlwaysSite": {
+    "message": "总是翻译此网站"
+  },
+  "popupFloatBall": {
+    "message": "页面悬浮球"
+  },
+  "popupAlwaysLang": {
+    "message": "总是翻译"
+  },
+  "popupThisLanguage": {
+    "message": "该语言"
+  },
+  "popupShortcuts": {
+    "message": "快捷键：<kbd>Alt+T</kbd>/<kbd>Alt+A</kbd> 整页翻译或恢复 · <kbd>Alt+W</kbd> 翻译整页 · 输入框 <kbd>Alt+Enter</kbd> 译成外语"
+  },
+  "popupPdfLink": {
+    "message": "翻译 PDF 文件 →"
+  },
+  "popupMoreSettings": {
+    "message": "更多设置"
+  },
+  "popupUnsupportedPage": {
+    "message": "此页面不支持翻译"
+  },
+  "popupTranslating": {
+    "message": "翻译中，请稍候…"
+  },
+  "popupTranslateFailed": {
+    "message": "翻译失败: "
+  },
+  "popupNoConnection": {
+    "message": "无法连接到页面"
+  },
+  "popupProgress": {
+    "message": "翻译中… $DONE$/$TOTAL$",
+    "placeholders": {
+      "done": {
+        "content": "$1"
+      },
+      "total": {
+        "content": "$2"
+      }
+    }
+  },
+  "popupDoneCount": {
+    "message": "已翻译 $COUNT$ 个段落",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "popupRestored": {
+    "message": "已恢复原文"
+  },
+  "popupReady": {
+    "message": "准备就绪"
+  },
+  "optTitle": {
+    "message": "OpenImmersive Translator - 设置"
+  },
+  "optHeading": {
+    "message": "OpenImmersive Translator 设置"
+  },
+  "optTagline": {
+    "message": "开源 · 隐私优先 · 双语翻译"
+  },
+  "optAccount": {
+    "message": "OpenImmersive 账号"
+  },
+  "optChecking": {
+    "message": "查询中…"
+  },
+  "optSignIn": {
+    "message": "登录 / 注册"
+  },
+  "optRefresh": {
+    "message": "刷新状态"
+  },
+  "optAccountHint": {
+    "message": "AI 翻译档（Standard / Premium）使用官网账号的额度；免费 Google 档无需账号。在官网登录或登出后点「刷新状态」即可生效——插件本身不保存你的密码。"
+  },
+  "optCommon": {
+    "message": "常用设置"
+  },
+  "optTargetLang": {
+    "message": "翻译成（目标语言）"
+  },
+  "optTargetLangHint": {
+    "message": "共 199 种语言，均已实测可用。常用的几种也会出现在插件弹窗里。"
+  },
+  "optDisplayMode": {
+    "message": "译文显示方式"
+  },
+  "optBilingual": {
+    "message": "双语对照（原文 + 译文）"
+  },
+  "optReplace": {
+    "message": "仅显示译文"
+  },
+  "optDisplayHint": {
+    "message": "仅显示译文时原文只是被隐藏，「恢复原文」可完整还原。"
+  },
+  "optHover": {
+    "message": "悬停翻译"
+  },
+  "optHoverDesc": {
+    "message": "按住触发键，鼠标划过段落即逐段翻译"
+  },
+  "optHoldAlt": {
+    "message": "按住 Alt"
+  },
+  "optHoldCtrl": {
+    "message": "按住 Ctrl"
+  },
+  "optHoldShift": {
+    "message": "按住 Shift"
+  },
+  "optHoldOff": {
+    "message": "关闭触发键"
+  },
+  "optSelection": {
+    "message": "划词翻译"
+  },
+  "optSelectionDesc": {
+    "message": "选中任意文字，弹出译文气泡"
+  },
+  "optInput": {
+    "message": "输入框翻译"
+  },
+  "optInputDesc": {
+    "message": "在输入框按 Alt+Enter，把你写的内容译成下面选的语言（写外语用）"
+  },
+  "optShortcutsHint": {
+    "message": "快捷键：<b>Alt+T</b> 或 <b>Alt+A</b> 翻译/恢复整页 · <b>Alt+W</b> 翻译整页（补翻新内容） · 选中文字即翻 · 输入框内 <b>Alt+Enter</b> 译成外语 · 悬停悬浮球展开快捷菜单"
+  },
+  "optAdvanced": {
+    "message": "高级设置（引擎、API Key、脱敏）"
+  },
+  "optEngine": {
+    "message": "翻译引擎"
+  },
+  "optEngineFree": {
+    "message": "免费引擎（无需 API Key）"
+  },
+  "optEngineGoogle": {
+    "message": "Google 翻译 ⭐ 推荐（默认）"
+  },
+  "optEngineMyMemory": {
+    "message": "MyMemory（备用）"
+  },
+  "optEngineLibre": {
+    "message": "LibreTranslate（开源，需实例地址）"
+  },
+  "optEngineAiGroup": {
+    "message": "AI 档（用官网账号额度，无需自备 Key）"
+  },
+  "optEngineStandard": {
+    "message": "Standard — 上下文更自然的 AI 翻译"
+  },
+  "optEnginePremium": {
+    "message": "Premium — 顶级模型，专业场景"
+  },
+  "optEngineKeyGroup": {
+    "message": "高质量引擎（自带 API Key）"
+  },
+  "optEngineDeepL": {
+    "message": "DeepL（质量最高，免费 50 万字/月）"
+  },
+  "optEngineDeepSeek": {
+    "message": "DeepSeek（AI 翻译，成本极低）"
+  },
+  "optEngineHint": {
+    "message": "默认用免费的 Google，够日常使用。<strong>AI 档</strong>用 <a href=\"https://openimmersive.ai\" target=\"_blank\" rel=\"noopener\">官网账号</a>的 credits，在浏览器里登录官网即可生效（插件不保存任何登录凭据）；也可以自备 API Key 走下面的引擎。"
+  },
+  "optDeepLKey": {
+    "message": "DeepL API Key"
+  },
+  "optDeepLFree": {
+    "message": "免费 50 万字/月"
+  },
+  "optDeepLHint": {
+    "message": "在 <a href=\"https://www.deepl.com/pro-api\" target=\"_blank\" rel=\"noopener\">deepl.com</a> 免费注册获取，以 \":fx\" 结尾为免费版。"
+  },
+  "optDeepSeekKey": {
+    "message": "DeepSeek API Key"
+  },
+  "optDeepSeekHint": {
+    "message": "在 <a href=\"https://platform.deepseek.com\" target=\"_blank\" rel=\"noopener\">platform.deepseek.com</a> 获取，成本约 $0.001/千字。"
+  },
+  "optOpenAIKey": {
+    "message": "OpenAI API Key"
+  },
+  "optOpenAIHint": {
+    "message": "在 <a href=\"https://platform.openai.com\" target=\"_blank\" rel=\"noopener\">platform.openai.com</a> 获取，使用 gpt-4o-mini。"
+  },
+  "optLibreUrl": {
+    "message": "LibreTranslate 实例地址"
+  },
+  "optLibreOptional": {
+    "message": "（留空用公共实例）"
+  },
+  "optLibreHint": {
+    "message": "开源、可自托管，隐私最高。见 <a href=\"https://github.com/LibreTranslate/LibreTranslate\" target=\"_blank\" rel=\"noopener\">LibreTranslate</a>。"
+  },
+  "optMask": {
+    "message": "敏感信息脱敏（Beta）"
+  },
+  "optMaskDesc": {
+    "message": "发送前本地打码邮箱/电话/卡号/证件/API Key，译后自动还原"
+  },
+  "optMaskHint": {
+    "message": "检测与还原全部在浏览器本地完成，敏感原文不会发往翻译服务商。极少数情况引擎改写占位符会导致该处还原失败（不泄露信息），如遇异常可关闭。"
+  },
+  "optPdf": {
+    "message": "PDF 翻译"
+  },
+  "optPdfHint": {
+    "message": "整份 PDF 保留排版翻译（含学术论文公式）在网站上进行：<a href=\"https://pdf.openimmersive.ai/\" target=\"_blank\" rel=\"noopener\">pdf.openimmersive.ai →</a>"
+  },
+  "optFile": {
+    "message": "翻译文件"
+  },
+  "optFileHint": {
+    "message": "支持 <strong>.srt .ass .html .txt .md</strong>：在本地解析，只把文字送去翻译，时间轴／标签／代码块原样保留。需要保留排版的 PDF、Word 等复杂文档，请用 <a href=\"https://pdf.openimmersive.ai\" target=\"_blank\" rel=\"noopener\">在线文档翻译</a>。"
+  },
+  "optPrivacyTitle": {
+    "message": "🔒 隐私保证"
+  },
+  "optPrivacyBody": {
+    "message": "所有翻译请求直接从你的浏览器发往翻译服务商，无中间服务器、无代理、无数据收集。API Key 仅存本地。代码完全开源可审计。"
+  },
+  "optSave": {
+    "message": "保存设置"
+  },
+  "optSaved": {
+    "message": "✅ 已保存"
+  },
+  "optFooter": {
+    "message": "OpenImmersive Translator · AGPL-3.0 开源协议 ·"
+  },
+  "optFooterTail": {
+    "message": "· 无数据收集，无遥测"
+  },
+  "optShow": {
+    "message": "显示"
+  },
+  "optHide": {
+    "message": "隐藏"
+  },
+  "optInputLangLabel": {
+    "message": "译成$LANG$",
+    "placeholders": {
+      "lang": {
+        "content": "$1"
+      }
+    }
+  },
+  "optAcctSoon": {
+    "message": "AI 翻译档即将上线，敬请期待（免费 Google 档不受影响）"
+  },
+  "optAcctSignedOut": {
+    "message": "未登录 —— 点「登录 / 注册」在官网完成登录后回来刷新"
+  },
+  "optAcctSignedIn": {
+    "message": "已登录：$EMAIL$ · 套餐 $PLAN$ · 余额 $CREDITS$ credits",
+    "placeholders": {
+      "email": {
+        "content": "$1"
+      },
+      "plan": {
+        "content": "$2"
+      },
+      "credits": {
+        "content": "$3"
+      }
+    }
+  },
+  "optAcctFailed": {
+    "message": "状态查询失败：$ERROR$",
+    "placeholders": {
+      "error": {
+        "content": "$1"
+      }
+    }
+  },
+  "fileUnsupported": {
+    "message": "不支持 $EXT$；可用格式：$LIST$",
+    "placeholders": {
+      "ext": {
+        "content": "$1"
+      },
+      "list": {
+        "content": "$2"
+      }
+    }
+  },
+  "fileTranslating": {
+    "message": "翻译中…"
+  },
+  "fileProgress": {
+    "message": "翻译中… $DONE$/$TOTAL$",
+    "placeholders": {
+      "done": {
+        "content": "$1"
+      },
+      "total": {
+        "content": "$2"
+      }
+    }
+  },
+  "fileFailed": {
+    "message": "翻译失败，未生成文件：$ERROR$",
+    "placeholders": {
+      "error": {
+        "content": "$1"
+      }
+    }
+  },
+  "fileNoTranslation": {
+    "message": "引擎没有返回任何译文"
+  },
+  "fileDownload": {
+    "message": "⬇ 下载 $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1"
+      }
+    }
+  },
+  "fileDone": {
+    "message": "完成"
+  },
+  "filePartial": {
+    "message": "完成（$FAILED$/$TOTAL$ 段未译出，保留原文：$ERROR$）",
+    "placeholders": {
+      "failed": {
+        "content": "$1"
+      },
+      "total": {
+        "content": "$2"
+      },
+      "error": {
+        "content": "$3"
+      }
+    }
+  },
+  "fileEmptyResult": {
+    "message": "引擎返回空译文"
+  },
+  "ctxTranslateSelection": {
+    "message": "翻译选中文字"
+  },
+  "ctxTranslatePage": {
+    "message": "翻译此页"
+  },
+  "bubbleCopy": {
+    "message": "复制"
+  },
+  "menuSettings": {
+    "message": "设置"
+  },
+  "ballTitle": {
+    "message": "OpenImmersive：翻译此页（Alt+T / Alt+A）"
+  },
+  "ballLabel": {
+    "message": "译"
+  },
+  "commError": {
+    "message": "通信错误"
+  },
+  "errLoginRequired": {
+    "message": "需要登录 $SITE$ 才能使用 AI 翻译档（免费的 Google 档无需登录）",
+    "placeholders": {
+      "site": {
+        "content": "$1"
+      }
+    }
+  },
+  "errOutOfCredits": {
+    "message": "额度不足，请到 $SITE$ 充值或订阅",
+    "placeholders": {
+      "site": {
+        "content": "$1"
+      }
+    }
+  },
+  "errAiSoon": {
+    "message": "AI 翻译档即将上线，暂请使用免费的 Google 档"
+  },
+  "errSiteStatus": {
+    "message": "官网接口返回 $STATUS$",
+    "placeholders": {
+      "status": {
+        "content": "$1"
+      }
+    }
+  },
+  "errNeedDeepLKey": {
+    "message": "请在设置页配置 DeepL API Key（免费版每月50万字）"
+  },
+  "errNeedOpenAIKey": {
+    "message": "请在设置页配置 OpenAI API Key"
+  },
+  "errNeedDeepSeekKey": {
+    "message": "请在设置页配置 DeepSeek API Key"
+  },
+  "welcomeTitle": {
+    "message": "欢迎使用 OpenImmersive Translator"
+  },
+  "welcomeLead": {
+    "message": "装好了！三步学会日常使用，全程隐私优先、数据不经中间服务器。"
+  },
+  "welcomeStep1": {
+    "message": "整页双语对照"
+  },
+  "welcomeStep1Body": {
+    "message": "打开任意外文网页，点工具栏图标里的「翻译此页」，或直接按 <kbd>Alt+T</kbd>。译文显示在原文下方，再按一次恢复原文。"
+  },
+  "welcomeStep2": {
+    "message": "悬停翻译单段"
+  },
+  "welcomeStep2Body": {
+    "message": "不想整页翻？按住 <kbd>Alt</kbd>，鼠标划过哪段就翻哪段。触发键可在设置里改成 Ctrl / Shift。"
+  },
+  "welcomeStep3": {
+    "message": "划词翻译 & 写外语"
+  },
+  "welcomeStep3Body": {
+    "message": "选中任意文字，立刻弹出译文气泡。要写外语邮件？在输入框里打好中文，按 <kbd>Alt+Enter</kbd> 就地译成英语（可在设置改目标语言）。"
+  },
+  "welcomeTipPin": {
+    "message": "💡 建议把插件固定到工具栏（点浏览器右上角拼图图标 → 图钉），用起来更顺手。"
+  },
+  "welcomeEngines": {
+    "message": "默认用免费引擎、零配置即用；想要更高质量翻译，可在「更多设置 → 高级」里配置 DeepL 等。"
+  },
+  "welcomeStart": {
+    "message": "开始使用"
+  },
+  "welcomeFooter": {
+    "message": "开源 AGPL-3.0 ·"
+  },
+  "welcomeFooterPdf": {
+    "message": "· 整份 PDF 翻译在"
+  },
+  "extDescShort": {
+    "message": "开源、隐私优先的双语翻译插件：整页双语对照、划词/悬停/输入框翻译、199 种语言。翻译请求直连所选引擎，无中间服务器、零数据收集。"
+  },
+  "uiLocale": {
+    "message": "zh",
+    "description": "Which language this catalogue is written in; language names follow it."
+  }
+}

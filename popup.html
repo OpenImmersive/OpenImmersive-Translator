@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>OpenImmersive Translator</title>
+  <title data-i18n-doc="extName">OpenImmersive Translator</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -111,10 +111,10 @@
 <body>
   <div class="header">
     <img src="icons/icon-48.png" alt="" />
-    <span class="header-title">OpenImmersive Translator</span>
+    <span class="header-title" data-i18n="extName">OpenImmersive Translator</span>
   </div>
 
-  <button class="main-btn" id="btnTranslate">翻译此页</button>
+  <button class="main-btn" id="btnTranslate" data-i18n="popupTranslatePage">Translate this page</button>
 
   <div class="status" id="status">
     <span class="status-dot" id="statusDot"></span>
@@ -123,37 +123,38 @@
 
   <div class="rows">
     <div class="row">
-      <span class="row-label">翻译成</span>
+      <span class="row-label" data-i18n="popupTranslateTo">Translate into</span>
       <!-- 常用语言在此，全部 199 种在设置页 -->
       <select id="selLang"></select>
     </div>
     <div class="row">
-      <span class="row-label">悬停翻译（按住 Alt 划过段落）</span>
+      <span class="row-label" data-i18n="popupHover">Hover translation (hold Alt over a paragraph)</span>
       <label class="switch"><input type="checkbox" id="swHover" /><span class="slider"></span></label>
     </div>
     <div class="row">
-      <span class="row-label">总是翻译此网站</span>
+      <span class="row-label" data-i18n="popupAlwaysSite">Always translate this site</span>
       <label class="switch"><input type="checkbox" id="swAutoSite" /><span class="slider"></span></label>
     </div>
     <div class="row">
-      <span class="row-label">页面悬浮球</span>
+      <span class="row-label" data-i18n="popupFloatBall">Floating button on the page</span>
       <label class="switch"><input type="checkbox" id="swFloatBall" /><span class="slider"></span></label>
     </div>
     <div class="row">
-      <span class="row-label">总是翻译<span id="autoLangName">该语言</span></span>
+      <span class="row-label"><span data-i18n="popupAlwaysLang">Always translate</span> <span id="autoLangName">this language</span></span>
       <label class="switch"><input type="checkbox" id="swAutoLang" /><span class="slider"></span></label>
     </div>
   </div>
 
-  <div class="hint">快捷键：<kbd>Alt+T</kbd>/<kbd>Alt+A</kbd> 整页翻译或恢复 · <kbd>Alt+W</kbd> 翻译整页 · 输入框 <kbd>Alt+Enter</kbd> 译成外语</div>
+  <div class="hint" data-i18n-html="popupShortcuts"></div>
 
   <hr />
 
   <div class="footer">
-    <a id="btnPdf" href="#">翻译 PDF 文件 →</a>
-    <a id="btnOptions" href="#">更多设置</a>
+    <a id="btnPdf" href="#" data-i18n="popupPdfLink">Translate a PDF file →</a>
+    <a id="btnOptions" href="#" data-i18n="popupMoreSettings">More settings</a>
   </div>
 
+  <script src="i18n.js"></script>
   <script src="languages.js"></script>
   <script src="popup.js"></script>
 </body>

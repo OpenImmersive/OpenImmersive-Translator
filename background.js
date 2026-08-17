@@ -1,5 +1,12 @@
 'use strict';
 
+// Interface language follows the browser (chrome.i18n); a missing key falls
+// back to the key name so nothing renders blank.
+const T = (k, subs) => {
+  try { return (typeof browser !== 'undefined' ? browser : chrome).i18n.getMessage(k, subs) || k; }
+  catch { return k; }
+};
+
 // 语灵灵 Background Script - 翻译引擎路由
 // 所有API请求直接从浏览器发出，无中间服务器
 
@@ -47,8 +54,8 @@ if (api.runtime.onInstalled) {
 function createContextMenus() {
   if (!api.contextMenus) return;
   api.contextMenus.removeAll(() => {
-    api.contextMenus.create({ id: 'yll-translate-selection', title: '翻译选中文字', contexts: ['selection'] });
-    api.contextMenus.create({ id: 'yll-translate-page', title: '翻译此页', contexts: ['page'] });
+    api.contextMenus.create({ id: 'yll-translate-selection', title: T('ctxTranslateSelection'), contexts: ['selection'] });
+    api.contextMenus.create({ id: 'yll-translate-page', title: T('ctxTranslatePage'), contexts: ['page'] });
   });
 }
 
@@ -166,17 +173,17 @@ async function translateViaSite(text, targetLang, sourceLang, tier) {
   try { data = await resp.json(); } catch (_) { /* 非 JSON 走下面的状态码分支 */ }
 
   if (resp.status === 401) {
-    throw new Error(`需要登录 ${site} 才能使用 AI 翻译档（免费的 Google 档无需登录）`);
+    throw new Error(T('errLoginRequired', [site]));
   }
   if (resp.status === 402) {
-    throw new Error(`额度不足，请到 ${site} 充值或订阅`);
+    throw new Error(T('errOutOfCredits', [site]));
   }
   if (resp.status === 404) {
     // 官网新版（带账号/额度）尚未切到正式域名时，接口整个不存在
-    throw new Error('AI 翻译档即将上线，暂请使用免费的 Google 档');
+    throw new Error(T('errAiSoon'));
   }
   if (!resp.ok) {
-    throw new Error((data.error && data.error.message) || `官网接口返回 ${resp.status}`);
+    throw new Error((data.error && data.error.message) || T('errSiteStatus', [String(resp.status)]));
   }
   return data.translatedText || '';
 }
@@ -236,7 +243,7 @@ async function translateMyMemory(text, targetLang, sourceLang = 'auto') {
 // ===== DeepL（免费API Key，deepl.com注册即得500K字/月）=====
 
 async function translateDeepL(text, targetLang, sourceLang, apiKey) {
-  if (!apiKey) throw new Error('请在设置页配置 DeepL API Key（免费版每月50万字）');
+  if (!apiKey) throw new Error(T('errNeedDeepLKey'));
 
   const body = {
     text: [text],
@@ -278,7 +285,7 @@ function toDeepLLang(lang) {
 // ===== OpenAI（BYOK，gpt-4o-mini成本极低）=====
 
 async function translateOpenAI(text, targetLang, sourceLang, apiKey) {
-  if (!apiKey) throw new Error('请在设置页配置 OpenAI API Key');
+  if (!apiKey) throw new Error(T('errNeedOpenAIKey'));
   return callOpenAICompat(
     'https://api.openai.com/v1/chat/completions',
     'gpt-4o-mini',
@@ -291,7 +298,7 @@ async function translateOpenAI(text, targetLang, sourceLang, apiKey) {
 // ===== DeepSeek（BYOK，比OpenAI便宜90%）=====
 
 async function translateDeepSeek(text, targetLang, sourceLang, apiKey) {
-  if (!apiKey) throw new Error('请在设置页配置 DeepSeek API Key');
+  if (!apiKey) throw new Error(T('errNeedDeepSeekKey'));
   return callOpenAICompat(
     'https://api.deepseek.com/v1/chat/completions',
     'deepseek-chat',

@@ -1,6 +1,7 @@
 'use strict';
 
 const api = typeof browser !== 'undefined' ? browser : chrome;
+const t = (k, ...subs) => YLI18n.t(k, subs.length ? subs.map(String) : undefined);
 
 const btnTranslate = document.getElementById('btnTranslate');
 const selLang = document.getElementById('selLang');
@@ -24,14 +25,18 @@ function fillPopupLanguages(current) {
     seen.add(code);
     const o = document.createElement('option');
     o.value = code;
-    o.textContent = row[2] === row[1] ? row[1] : `${row[2]}（${row[1]}）`;
+    o.textContent = YLI18n.langLabel(row);
     selLang.appendChild(o);
   };
   YLLangs.COMMON.forEach(add);
   if (current) add(current);
 }
 
-const LANG_LABELS = { zh: '中文', ja: '日语', ko: '韩语', en: '英语', ru: '俄语', ar: '阿拉伯语', he: '希伯来语', el: '希腊语', th: '泰语', hi: '印地语', fr: '法语', de: '德语', es: '西班牙语', pt: '葡萄牙语', it: '意大利语' };
+// 「总是翻译该语言」里那个语种名：查语言表拿当前界面语言下的写法。
+function langName(code) {
+  const row = YLLangs.ALL.find(r => r[0] === code || r[0].split('-')[0] === code);
+  return row ? (YLI18n.isZh() ? row[2] : row[1]) : code;
+}
 let engine = 'google'; // 引擎收进「更多设置」，popup 只读取、不展示
 
 // ===== 初始化 =====
@@ -57,7 +62,7 @@ async function init() {
     const r = await api.tabs.sendMessage(tab.id, { type: 'getPageLang' });
     currentPageLang = (r && r.lang) || '';
   } catch { currentPageLang = ''; }
-  autoLangName.textContent = currentPageLang ? (LANG_LABELS[currentPageLang] || currentPageLang) : '该语言';
+  autoLangName.textContent = currentPageLang ? langName(currentPageLang) : t('popupThisLanguage');
   swAutoLang.checked = !!currentPageLang && langs.includes(currentPageLang);
   swAutoLang.disabled = !currentPageLang;
 
@@ -65,7 +70,7 @@ async function init() {
     const resp = await api.tabs.sendMessage(tab.id, { type: 'getStatus' });
     updateUI(resp);
   } catch {
-    setStatus('dot-off', '此页面不支持翻译');
+    setStatus('dot-off', t('popupUnsupportedPage'));
     btnTranslate.disabled = true;
   }
 }
@@ -78,12 +83,12 @@ btnTranslate.addEventListener('click', async () => {
   await setStorage({ targetLang });
 
   btnTranslate.disabled = true;
-  setStatus('dot-loading', '翻译中，请稍候…');
+  setStatus('dot-loading', t('popupTranslating'));
   try {
     const resp = await api.tabs.sendMessage(currentTab.id, { type: 'translatePage', targetLang, engine });
     updateUI(resp);
   } catch (err) {
-    setStatus('dot-off', '翻译失败: ' + err.message);
+    setStatus('dot-off', t('popupTranslateFailed') + err.message);
   } finally {
     btnTranslate.disabled = false;
   }
@@ -142,28 +147,28 @@ document.getElementById('btnPdf').addEventListener('click', (e) => {
 // ===== UI 更新 =====
 
 function updateUI(resp) {
-  if (!resp) { setStatus('dot-off', '无法连接到页面'); return; }
+  if (!resp) { setStatus('dot-off', t('popupNoConnection')); return; }
 
   if (resp.isTranslating) {
-    setStatus('dot-loading', `翻译中… ${resp.translatedCount || 0}/${resp.totalCount || 0}`);
+    setStatus('dot-loading', t('popupProgress', resp.translatedCount || 0, resp.totalCount || 0));
     btnTranslate.disabled = true;
     return;
   }
   if (resp.isTranslated || resp.status === 'done') {
     const count = resp.count || resp.translatedCount || 0;
-    setStatus('dot-on', `已翻译 ${count} 个段落`);
-    btnTranslate.textContent = '恢复原文';
+    setStatus('dot-on', t('popupDoneCount', count));
+    btnTranslate.textContent = t('popupRestore');
     btnTranslate.classList.add('active');
     return;
   }
   if (resp.status === 'removed') {
-    setStatus('dot-off', '已恢复原文');
-    btnTranslate.textContent = '翻译此页';
+    setStatus('dot-off', t('popupRestored'));
+    btnTranslate.textContent = t('popupTranslatePage');
     btnTranslate.classList.remove('active');
     return;
   }
-  setStatus('dot-off', '准备就绪');
-  btnTranslate.textContent = '翻译此页';
+  setStatus('dot-off', t('popupReady'));
+  btnTranslate.textContent = t('popupTranslatePage');
   btnTranslate.classList.remove('active');
 }
 

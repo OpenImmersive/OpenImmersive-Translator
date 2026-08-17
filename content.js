@@ -4,6 +4,12 @@
 // 隐私保证：所有API调用通过background.js直接发往翻译服务商
 
 (function () {
+  // Interface language follows the browser (chrome.i18n). A missing key falls
+  // back to the key name rather than a blank control.
+  const T = (k) => {
+    try { return (typeof browser !== 'undefined' ? browser : chrome).i18n.getMessage(k) || k; }
+    catch { return k; }
+  };
   if (window.__yllLoaded) return;
   window.__yllLoaded = true;
 
@@ -172,7 +178,7 @@
 
     const range = sel.getRangeAt(0);
     const rect = range.getBoundingClientRect();
-    showPopup(rect, '翻译中…', true);
+    showPopup(rect, T('popupTranslating'), true);
 
     try {
       const { engine = 'google', targetLang = 'zh-CN' } = await getSettings();
@@ -187,10 +193,10 @@
       if (resp && resp.success) {
         showPopup(rect, resp.translation, false);
       } else {
-        showPopup(rect, `翻译失败: ${resp ? resp.error : '通信错误'}`, false);
+        showPopup(rect, T('popupTranslateFailed') + (resp ? resp.error : T('commError')), false);
       }
     } catch (err) {
-      showPopup(rect, `翻译失败: ${err.message}`, false);
+      showPopup(rect, T('popupTranslateFailed') + err.message, false);
     }
   }
 
@@ -208,7 +214,7 @@
       const spin = document.createElement('span');
       spin.className = 'yll-spin';
       spin.textContent = '⟳';
-      selPopup.append(spin, ' 翻译中…');
+      selPopup.append(spin, ' ' + T('popupTranslating'));
       selPopup.className = 'yll-popup-loading';
     } else {
       const textDiv = document.createElement('div');
@@ -217,7 +223,7 @@
       const copy = document.createElement('a');
       copy.href = '#';
       copy.className = 'yll-copy';
-      copy.textContent = '复制';
+      copy.textContent = T('bubbleCopy');
       copy.addEventListener('click', (e) => {
         e.preventDefault();
         navigator.clipboard.writeText(text).catch(() => {});
@@ -306,23 +312,23 @@
       menu.appendChild(b);
       return b;
     };
-    const toggleItem = mkItem('翻译此页', () => {
+    const toggleItem = mkItem(T('popupTranslatePage'), () => {
       if (state.isTranslated) removeTranslations();
       else translatePage();
     });
-    mkItem('翻译选中文字', () => translateCurrentSelection());
-    mkItem('设置', () => {
+    mkItem(T('ctxTranslateSelection'), () => translateCurrentSelection());
+    mkItem(T('menuSettings'), () => {
       api.runtime.sendMessage({ type: 'openOptions' }).catch(() => {});
     });
     // 展开时按当前状态刷新第一项的文案
     ballWrap.addEventListener('mouseenter', () => {
-      toggleItem.textContent = state.isTranslated ? '恢复原文' : '翻译此页';
+      toggleItem.textContent = state.isTranslated ? T('popupRestore') : T('popupTranslatePage');
     });
 
     floatBall = document.createElement('div');
     floatBall.id = 'yll-float-ball';
-    floatBall.textContent = '译';
-    floatBall.title = 'OpenImmersive：翻译此页（Alt+T / Alt+A）';
+    floatBall.textContent = T('ballLabel');
+    floatBall.title = T('ballTitle');
     floatBall.addEventListener('click', () => {
       if (state.isTranslated) removeTranslations();
       else translatePage();

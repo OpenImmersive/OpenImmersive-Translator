@@ -1,0 +1,473 @@
+{
+  "extName": {
+    "message": "OpenImmersive Translator"
+  },
+  "extDesc": {
+    "message": "Open-source, privacy-first bilingual web translation with PDF support (layout kept, translated text selectable). Free engines built in, BYOK supported, every request goes straight from your browser — no middle server, no data collection."
+  },
+  "popupTranslatePage": {
+    "message": "Translate this page"
+  },
+  "popupRestore": {
+    "message": "Show original"
+  },
+  "popupTranslateTo": {
+    "message": "Translate into"
+  },
+  "popupHover": {
+    "message": "Hover translation (hold Alt over a paragraph)"
+  },
+  "popupAlwaysSite": {
+    "message": "Always translate this site"
+  },
+  "popupFloatBall": {
+    "message": "Floating button on the page"
+  },
+  "popupAlwaysLang": {
+    "message": "Always translate"
+  },
+  "popupThisLanguage": {
+    "message": "this language"
+  },
+  "popupShortcuts": {
+    "message": "Shortcuts: <kbd>Alt+T</kbd>/<kbd>Alt+A</kbd> translate or restore the page · <kbd>Alt+W</kbd> translate the whole page · <kbd>Alt+Enter</kbd> in a text field writes it in another language"
+  },
+  "popupPdfLink": {
+    "message": "Translate a PDF file →"
+  },
+  "popupMoreSettings": {
+    "message": "More settings"
+  },
+  "popupUnsupportedPage": {
+    "message": "This page cannot be translated"
+  },
+  "popupTranslating": {
+    "message": "Translating, one moment…"
+  },
+  "popupTranslateFailed": {
+    "message": "Translation failed: "
+  },
+  "popupNoConnection": {
+    "message": "Cannot reach the page"
+  },
+  "popupProgress": {
+    "message": "Translating… $DONE$/$TOTAL$",
+    "placeholders": {
+      "done": {
+        "content": "$1"
+      },
+      "total": {
+        "content": "$2"
+      }
+    }
+  },
+  "popupDoneCount": {
+    "message": "$COUNT$ paragraphs translated",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "popupRestored": {
+    "message": "Original restored"
+  },
+  "popupReady": {
+    "message": "Ready"
+  },
+  "optTitle": {
+    "message": "OpenImmersive Translator — Settings"
+  },
+  "optHeading": {
+    "message": "OpenImmersive Translator settings"
+  },
+  "optTagline": {
+    "message": "Open source · privacy first · bilingual"
+  },
+  "optAccount": {
+    "message": "OpenImmersive account"
+  },
+  "optChecking": {
+    "message": "Checking…"
+  },
+  "optSignIn": {
+    "message": "Log in / Sign up"
+  },
+  "optRefresh": {
+    "message": "Refresh status"
+  },
+  "optAccountHint": {
+    "message": "The AI tiers (Standard / Premium) draw on your account balance on the website; the free Google tier needs no account. Log in or out on the website, then press Refresh status — the extension never stores your password."
+  },
+  "optCommon": {
+    "message": "Everyday settings"
+  },
+  "optTargetLang": {
+    "message": "Translate into (target language)"
+  },
+  "optTargetLangHint": {
+    "message": "199 languages, each one tested end to end. The most common ones also appear in the popup."
+  },
+  "optDisplayMode": {
+    "message": "How translations are shown"
+  },
+  "optBilingual": {
+    "message": "Side by side (original + translation)"
+  },
+  "optReplace": {
+    "message": "Translation only"
+  },
+  "optDisplayHint": {
+    "message": "In translation-only mode the original is merely hidden — \"Show original\" brings all of it back."
+  },
+  "optHover": {
+    "message": "Hover translation"
+  },
+  "optHoverDesc": {
+    "message": "Hold the trigger key and move the mouse over a paragraph to translate it"
+  },
+  "optHoldAlt": {
+    "message": "Hold Alt"
+  },
+  "optHoldCtrl": {
+    "message": "Hold Ctrl"
+  },
+  "optHoldShift": {
+    "message": "Hold Shift"
+  },
+  "optHoldOff": {
+    "message": "No trigger key"
+  },
+  "optSelection": {
+    "message": "Selection translation"
+  },
+  "optSelectionDesc": {
+    "message": "Select any text and a translation bubble appears"
+  },
+  "optInput": {
+    "message": "Text-field translation"
+  },
+  "optInputDesc": {
+    "message": "Press Alt+Enter in a text field to turn what you wrote into the language selected here"
+  },
+  "optShortcutsHint": {
+    "message": "Shortcuts: <b>Alt+T</b> or <b>Alt+A</b> translate/restore the page · <b>Alt+W</b> translate the page again including new content · select text to translate it · <b>Alt+Enter</b> in a text field writes it in another language · hover the floating button for the quick menu"
+  },
+  "optAdvanced": {
+    "message": "Advanced (engines, API keys, redaction)"
+  },
+  "optEngine": {
+    "message": "Translation engine"
+  },
+  "optEngineFree": {
+    "message": "Free engines (no API key)"
+  },
+  "optEngineGoogle": {
+    "message": "Google Translate ⭐ recommended (default)"
+  },
+  "optEngineMyMemory": {
+    "message": "MyMemory (backup)"
+  },
+  "optEngineLibre": {
+    "message": "LibreTranslate (open source, needs an instance URL)"
+  },
+  "optEngineAiGroup": {
+    "message": "AI tiers (uses your website balance, no key needed)"
+  },
+  "optEngineStandard": {
+    "message": "Standard — context-aware AI translation"
+  },
+  "optEnginePremium": {
+    "message": "Premium — top model, professional work"
+  },
+  "optEngineKeyGroup": {
+    "message": "High-quality engines (bring your own API key)"
+  },
+  "optEngineDeepL": {
+    "message": "DeepL (highest quality, 500K characters/month free)"
+  },
+  "optEngineDeepSeek": {
+    "message": "DeepSeek (AI translation, very low cost)"
+  },
+  "optEngineHint": {
+    "message": "Free Google is the default and is enough for everyday reading. The <strong>AI tiers</strong> spend credits from your <a href=\"https://openimmersive.ai\" target=\"_blank\" rel=\"noopener\">website account</a> — log in there in this browser and they work here (the extension stores no credentials). You can also bring your own API key for the engines below."
+  },
+  "optDeepLKey": {
+    "message": "DeepL API key"
+  },
+  "optDeepLFree": {
+    "message": "500K characters/month free"
+  },
+  "optDeepLHint": {
+    "message": "Register free at <a href=\"https://www.deepl.com/pro-api\" target=\"_blank\" rel=\"noopener\">deepl.com</a>; a key ending in \":fx\" is a free one."
+  },
+  "optDeepSeekKey": {
+    "message": "DeepSeek API key"
+  },
+  "optDeepSeekHint": {
+    "message": "Get one at <a href=\"https://platform.deepseek.com\" target=\"_blank\" rel=\"noopener\">platform.deepseek.com</a> — around $0.001 per thousand characters."
+  },
+  "optOpenAIKey": {
+    "message": "OpenAI API key"
+  },
+  "optOpenAIHint": {
+    "message": "Get one at <a href=\"https://platform.openai.com\" target=\"_blank\" rel=\"noopener\">platform.openai.com</a>; uses gpt-4o-mini."
+  },
+  "optLibreUrl": {
+    "message": "LibreTranslate instance URL"
+  },
+  "optLibreOptional": {
+    "message": "(leave empty for the public instance)"
+  },
+  "optLibreHint": {
+    "message": "Open source and self-hostable, the most private option. See <a href=\"https://github.com/LibreTranslate/LibreTranslate\" target=\"_blank\" rel=\"noopener\">LibreTranslate</a>."
+  },
+  "optMask": {
+    "message": "Sensitive-data redaction (beta)"
+  },
+  "optMaskDesc": {
+    "message": "Mask emails, phone numbers, card and ID numbers and API keys locally before sending, then restore them in the translation"
+  },
+  "optMaskHint": {
+    "message": "Detection and restoration happen entirely in your browser; the sensitive original never reaches a translation provider. In rare cases an engine rewrites a placeholder and that one spot cannot be restored (nothing leaks) — switch this off if you hit that."
+  },
+  "optPdf": {
+    "message": "PDF translation"
+  },
+  "optPdfHint": {
+    "message": "Whole PDFs with the layout preserved (including academic formulas) are translated on the website: <a href=\"https://pdf.openimmersive.ai/\" target=\"_blank\" rel=\"noopener\">pdf.openimmersive.ai →</a>"
+  },
+  "optFile": {
+    "message": "Translate a file"
+  },
+  "optFileHint": {
+    "message": "Supports <strong>.srt .ass .html .txt .md</strong>: parsed locally, only the words are sent for translation, and timecodes, tags and code blocks are left exactly as they were. For PDF, Word and other layout-heavy documents use the <a href=\"https://pdf.openimmersive.ai\" target=\"_blank\" rel=\"noopener\">online document translator</a>."
+  },
+  "optPrivacyTitle": {
+    "message": "🔒 Privacy"
+  },
+  "optPrivacyBody": {
+    "message": "Every translation request goes straight from your browser to the translation provider — no middle server, no proxy, no data collection. API keys stay on this device. The code is open source and auditable."
+  },
+  "optSave": {
+    "message": "Save settings"
+  },
+  "optSaved": {
+    "message": "✅ Saved"
+  },
+  "optFooter": {
+    "message": "OpenImmersive Translator · AGPL-3.0 ·"
+  },
+  "optFooterTail": {
+    "message": "· no data collection, no telemetry"
+  },
+  "optShow": {
+    "message": "Show"
+  },
+  "optHide": {
+    "message": "Hide"
+  },
+  "optInputLangLabel": {
+    "message": "Write in $LANG$",
+    "placeholders": {
+      "lang": {
+        "content": "$1"
+      }
+    }
+  },
+  "optAcctSoon": {
+    "message": "The AI tiers are coming to the extension soon (the free Google tier is unaffected)"
+  },
+  "optAcctSignedOut": {
+    "message": "Not signed in — press \"Log in / Sign up\", finish on the website, then come back and refresh"
+  },
+  "optAcctSignedIn": {
+    "message": "Signed in: $EMAIL$ · plan $PLAN$ · balance $CREDITS$ credits",
+    "placeholders": {
+      "email": {
+        "content": "$1"
+      },
+      "plan": {
+        "content": "$2"
+      },
+      "credits": {
+        "content": "$3"
+      }
+    }
+  },
+  "optAcctFailed": {
+    "message": "Could not check status: $ERROR$",
+    "placeholders": {
+      "error": {
+        "content": "$1"
+      }
+    }
+  },
+  "fileUnsupported": {
+    "message": "$EXT$ is not supported; usable formats: $LIST$",
+    "placeholders": {
+      "ext": {
+        "content": "$1"
+      },
+      "list": {
+        "content": "$2"
+      }
+    }
+  },
+  "fileTranslating": {
+    "message": "Translating…"
+  },
+  "fileProgress": {
+    "message": "Translating… $DONE$/$TOTAL$",
+    "placeholders": {
+      "done": {
+        "content": "$1"
+      },
+      "total": {
+        "content": "$2"
+      }
+    }
+  },
+  "fileFailed": {
+    "message": "Translation failed, no file produced: $ERROR$",
+    "placeholders": {
+      "error": {
+        "content": "$1"
+      }
+    }
+  },
+  "fileNoTranslation": {
+    "message": "the engine returned no translation at all"
+  },
+  "fileDownload": {
+    "message": "⬇ Download $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1"
+      }
+    }
+  },
+  "fileDone": {
+    "message": "Done"
+  },
+  "filePartial": {
+    "message": "Done ($FAILED$/$TOTAL$ segments kept their original text: $ERROR$)",
+    "placeholders": {
+      "failed": {
+        "content": "$1"
+      },
+      "total": {
+        "content": "$2"
+      },
+      "error": {
+        "content": "$3"
+      }
+    }
+  },
+  "fileEmptyResult": {
+    "message": "the engine returned an empty translation"
+  },
+  "ctxTranslateSelection": {
+    "message": "Translate the selected text"
+  },
+  "ctxTranslatePage": {
+    "message": "Translate this page"
+  },
+  "bubbleCopy": {
+    "message": "Copy"
+  },
+  "menuSettings": {
+    "message": "Settings"
+  },
+  "ballTitle": {
+    "message": "OpenImmersive: translate this page (Alt+T / Alt+A)"
+  },
+  "ballLabel": {
+    "message": "T"
+  },
+  "commError": {
+    "message": "communication error"
+  },
+  "errLoginRequired": {
+    "message": "Log in at $SITE$ to use the AI tiers (the free Google tier needs no account)",
+    "placeholders": {
+      "site": {
+        "content": "$1"
+      }
+    }
+  },
+  "errOutOfCredits": {
+    "message": "Out of credits — top up or subscribe at $SITE$",
+    "placeholders": {
+      "site": {
+        "content": "$1"
+      }
+    }
+  },
+  "errAiSoon": {
+    "message": "The AI tiers are not available in the extension yet — please use the free Google tier for now"
+  },
+  "errSiteStatus": {
+    "message": "The website API answered $STATUS$",
+    "placeholders": {
+      "status": {
+        "content": "$1"
+      }
+    }
+  },
+  "errNeedDeepLKey": {
+    "message": "Add a DeepL API key in settings (the free tier covers 500K characters a month)"
+  },
+  "errNeedOpenAIKey": {
+    "message": "Add an OpenAI API key in settings"
+  },
+  "errNeedDeepSeekKey": {
+    "message": "Add a DeepSeek API key in settings"
+  },
+  "welcomeTitle": {
+    "message": "Welcome to OpenImmersive Translator"
+  },
+  "welcomeLead": {
+    "message": "Installed. Three steps and you know the daily workflow — privacy first, nothing routed through a middle server."
+  },
+  "welcomeStep1": {
+    "message": "Bilingual whole page"
+  },
+  "welcomeStep1Body": {
+    "message": "Open any page in another language and press <kbd>Alt+T</kbd>, or click \"Translate this page\" in the toolbar popup. The translation appears under each paragraph; press again to restore the original."
+  },
+  "welcomeStep2": {
+    "message": "Translate one paragraph on hover"
+  },
+  "welcomeStep2Body": {
+    "message": "Not the whole page? Hold <kbd>Alt</kbd> and move the mouse over a paragraph to translate just that one. The trigger key can be changed to Ctrl or Shift in settings."
+  },
+  "welcomeStep3": {
+    "message": "Selection translation & writing in another language"
+  },
+  "welcomeStep3Body": {
+    "message": "Select any text and a translation bubble pops up. Writing an email in another language? Type it in your own language in the text field and press <kbd>Alt+Enter</kbd> to translate it in place (target language is configurable in settings)."
+  },
+  "welcomeTipPin": {
+    "message": "💡 Pin the extension to the toolbar (puzzle icon at the top right of the browser → pin) — it is much handier that way."
+  },
+  "welcomeEngines": {
+    "message": "Free engines by default, zero configuration. For higher quality, configure DeepL and others under More settings → Advanced."
+  },
+  "welcomeStart": {
+    "message": "Get started"
+  },
+  "welcomeFooter": {
+    "message": "Open source AGPL-3.0 ·"
+  },
+  "welcomeFooterPdf": {
+    "message": "· whole-PDF translation lives at"
+  },
+  "extDescShort": {
+    "message": "Open-source, privacy-first bilingual translation: whole page, selection, hover and text fields, 199 languages. No middle server."
+  },
+  "uiLocale": {
+    "message": "en",
+    "description": "Which language this catalogue is written in; language names follow it."
+  }
+}

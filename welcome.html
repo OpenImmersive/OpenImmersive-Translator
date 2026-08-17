@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>欢迎使用 OpenImmersive Translator</title>
+  <title data-i18n-doc="welcomeTitle">Welcome to OpenImmersive Translator</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
@@ -52,47 +52,48 @@
     <div class="hero">
       <img src="icons/icon-128.png" alt="" />
       <h1>OpenImmersive Translator</h1>
-      <p>装好了！三步学会日常使用，全程隐私优先、数据不经中间服务器。</p>
+      <p data-i18n="welcomeLead">Installed. Three steps and you know the daily workflow — privacy first, nothing routed through a middle server.</p>
     </div>
 
     <div class="steps">
       <div class="step">
         <div class="num">1</div>
         <div>
-          <h3>整页双语对照</h3>
-          <p>打开任意外文网页，点工具栏图标里的「翻译此页」，或直接按 <kbd>Alt</kbd>+<kbd>T</kbd>。译文显示在原文下方，再按一次恢复原文。</p>
+          <h3 data-i18n="welcomeStep1">Bilingual whole page</h3>
+          <p data-i18n-html="welcomeStep1Body"></p>
         </div>
       </div>
       <div class="step">
         <div class="num">2</div>
         <div>
-          <h3>悬停翻译单段</h3>
-          <p>不想整页翻？<b>按住 <kbd>Alt</kbd></b>，鼠标划过哪段就翻哪段。触发键可在设置里改成 Ctrl / Shift。</p>
+          <h3 data-i18n="welcomeStep2">Translate one paragraph on hover</h3>
+          <p data-i18n-html="welcomeStep2Body"></p>
         </div>
       </div>
       <div class="step">
         <div class="num">3</div>
         <div>
-          <h3>划词翻译 &amp; 写外语</h3>
-          <p>选中任意文字，立刻弹出译文气泡。要写外语邮件？在输入框里打好中文，按 <kbd>Alt</kbd>+<kbd>Enter</kbd> 就地译成英语（可在设置改目标语言）。</p>
+          <h3 data-i18n="welcomeStep3">Selection translation & writing in another language</h3>
+          <p data-i18n-html="welcomeStep3Body"></p>
         </div>
       </div>
     </div>
 
     <div class="tip">
-      💡 建议把插件<b>固定到工具栏</b>（点浏览器右上角拼图图标 → 图钉），用起来更顺手。<br />
-      默认用免费引擎、零配置即用；想要更高质量翻译，可在「更多设置 → 高级」里配置 DeepL 等。
+      <span data-i18n="welcomeTipPin">💡 Pin the extension to the toolbar (puzzle icon at the top right of the browser → pin) — it is much handier that way.</span><br />
+      <span data-i18n="welcomeEngines">Free engines by default, zero configuration. For higher quality, configure DeepL and others under More settings → Advanced.</span>
     </div>
 
     <div class="cta">
-      <button id="btnStart">开始使用</button>
+      <button id="btnStart" data-i18n="welcomeStart">Get started</button>
     </div>
 
     <div class="foot">
-      开源 AGPL-3.0 · <a href="https://github.com/OpenImmersive/Open-Immersive-Translator" target="_blank" rel="noopener">GitHub</a> · 整份 PDF 翻译在 <a href="https://pdf.openimmersive.ai/" target="_blank" rel="noopener">pdf.openimmersive.ai</a>
+      <span data-i18n="welcomeFooter">Open source AGPL-3.0 ·</span> <a href="https://github.com/OpenImmersive/Open-Immersive-Translator" target="_blank" rel="noopener">GitHub</a> <span data-i18n="welcomeFooterPdf">· whole-PDF translation lives at</span> <a href="https://pdf.openimmersive.ai/" target="_blank" rel="noopener">pdf.openimmersive.ai</a>
     </div>
   </div>
 
+  <script src="i18n.js"></script>
   <script src="welcome.js"></script>
 </body>
 </html>

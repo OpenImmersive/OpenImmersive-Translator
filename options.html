@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>OpenImmersive Translator - 设置</title>
+  <title data-i18n-doc="optTitle">OpenImmersive Translator — Settings</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -121,8 +121,8 @@
     <div class="container">
       <img src="icons/icon-48.png" alt="" />
       <div>
-        <h1>OpenImmersive Translator 设置</h1>
-        <p>开源 · 隐私优先 · 双语翻译</p>
+        <h1 data-i18n="optHeading">OpenImmersive Translator settings</h1>
+        <p data-i18n="optTagline">Open source · privacy first · bilingual</p>
       </div>
     </div>
   </div>
@@ -131,49 +131,49 @@
 
     <!-- OpenImmersive 账号 -->
     <div class="card">
-      <div class="card-header">OpenImmersive 账号</div>
+      <div class="card-header" data-i18n="optAccount">OpenImmersive account</div>
       <div class="card-body">
         <div class="form-group">
-          <div id="oiAcctStatus" class="hint" style="font-size:14px;color:#333">查询中…</div>
+          <div id="oiAcctStatus" class="hint" style="font-size:14px;color:#333" data-i18n="optChecking">Checking…</div>
           <div style="margin-top:10px;display:flex;gap:10px">
-            <button type="button" id="btnOiLogin" class="btn-show">登录 / 注册</button>
-            <button type="button" id="btnOiRefresh" class="btn-show">刷新状态</button>
+            <button type="button" id="btnOiLogin" class="btn-show" data-i18n="optSignIn">Log in / Sign up</button>
+            <button type="button" id="btnOiRefresh" class="btn-show" data-i18n="optRefresh">Refresh status</button>
           </div>
-          <p class="hint">AI 翻译档（Standard / Premium）使用官网账号的额度；免费 Google 档无需账号。在官网登录或登出后点「刷新状态」即可生效——插件本身不保存你的密码。</p>
+          <p class="hint" data-i18n="optAccountHint">The AI tiers (Standard / Premium) draw on your account balance on the website; the free Google tier needs no account. Log in or out on the website, then press Refresh status — the extension never stores your password.</p>
         </div>
       </div>
     </div>
 
     <!-- 常用设置 -->
     <div class="card">
-      <div class="card-header">常用设置</div>
+      <div class="card-header" data-i18n="optCommon">Everyday settings</div>
       <div class="card-body">
         <div class="form-group">
-          <label>翻译成（目标语言）</label>
+          <label data-i18n="optTargetLang">Translate into (target language)</label>
           <select id="defLang"></select>
-          <p class="hint">共 199 种语言，均已实测可用。常用的几种也会出现在插件弹窗里。</p>
+          <p class="hint" data-i18n="optTargetLangHint">199 languages, each one tested end to end. The most common ones also appear in the popup.</p>
         </div>
 
         <div class="form-group">
-          <label>译文显示方式</label>
+          <label data-i18n="optDisplayMode">How translations are shown</label>
           <select id="selDisplayMode">
-            <option value="bilingual">双语对照（原文 + 译文）</option>
-            <option value="replace">仅显示译文</option>
+            <option value="bilingual" data-i18n="optBilingual">Side by side (original + translation)</option>
+            <option value="replace" data-i18n="optReplace">Translation only</option>
           </select>
-          <p class="hint">仅显示译文时原文只是被隐藏，「恢复原文」可完整还原。</p>
+          <p class="hint" data-i18n="optDisplayHint">In translation-only mode the original is merely hidden — "Show original" brings all of it back.</p>
         </div>
 
         <div class="toggle-row">
           <div>
-            <div class="t-label">悬停翻译</div>
-            <div class="t-desc">按住触发键，鼠标划过段落即逐段翻译</div>
+            <div class="t-label" data-i18n="optHover">Hover translation</div>
+            <div class="t-desc" data-i18n="optHoverDesc">Hold the trigger key and move the mouse over a paragraph to translate it</div>
           </div>
           <div class="t-right">
             <select id="selHoverKey">
-              <option value="Alt">按住 Alt</option>
-              <option value="Control">按住 Ctrl</option>
-              <option value="Shift">按住 Shift</option>
-              <option value="off">关闭触发键</option>
+              <option value="Alt" data-i18n="optHoldAlt">Hold Alt</option>
+              <option value="Control" data-i18n="optHoldCtrl">Hold Ctrl</option>
+              <option value="Shift" data-i18n="optHoldShift">Hold Shift</option>
+              <option value="off" data-i18n="optHoldOff">No trigger key</option>
             </select>
             <label class="switch"><input type="checkbox" id="swHover" /><span class="slider"></span></label>
           </div>
@@ -181,8 +181,8 @@
 
         <div class="toggle-row">
           <div>
-            <div class="t-label">划词翻译</div>
-            <div class="t-desc">选中任意文字，弹出译文气泡</div>
+            <div class="t-label" data-i18n="optSelection">Selection translation</div>
+            <div class="t-desc" data-i18n="optSelectionDesc">Select any text and a translation bubble appears</div>
           </div>
           <div class="t-right">
             <label class="switch"><input type="checkbox" id="swSelection" /><span class="slider"></span></label>
@@ -191,8 +191,8 @@
 
         <div class="toggle-row">
           <div>
-            <div class="t-label">输入框翻译</div>
-            <div class="t-desc">在输入框按 Alt+Enter，把你写的内容译成下面选的语言（写外语用）</div>
+            <div class="t-label" data-i18n="optInput">Text-field translation</div>
+            <div class="t-desc" data-i18n="optInputDesc">Press Alt+Enter in a text field to turn what you wrote into the language selected here</div>
           </div>
           <div class="t-right">
             <select id="selInputLang"></select>
@@ -200,91 +200,85 @@
           </div>
         </div>
 
-        <p class="hint" style="margin-top:14px">
-          快捷键：<b>Alt+T</b> 或 <b>Alt+A</b> 翻译/恢复整页 · <b>Alt+W</b> 翻译整页（补翻新内容） · 选中文字即翻 · 输入框内 <b>Alt+Enter</b> 译成外语 · 悬停悬浮球展开快捷菜单
-        </p>
+        <p class="hint" style="margin-top:14px" data-i18n-html="optShortcutsHint"></p>
       </div>
     </div>
 
     <!-- 高级设置（默认折叠） -->
     <details class="card">
-      <summary>高级设置（引擎、API Key、脱敏）</summary>
+      <summary data-i18n="optAdvanced">Advanced (engines, API keys, redaction)</summary>
       <div class="card-body">
 
         <div class="sub-block">
-          <div class="sub-title">翻译引擎</div>
+          <div class="sub-title" data-i18n="optEngine">Translation engine</div>
           <select id="defEngine">
-            <optgroup label="免费引擎（无需 API Key）">
-              <option value="google">Google 翻译 ⭐ 推荐（默认）</option>
-              <option value="mymemory">MyMemory（备用）</option>
-              <option value="libretranslate">LibreTranslate（开源，需实例地址）</option>
+            <optgroup data-i18n-label="optEngineFree" label="免费引擎（无需 API Key）">
+              <option value="google" data-i18n="optEngineGoogle">Google Translate ⭐ recommended (default)</option>
+              <option value="mymemory" data-i18n="optEngineMyMemory">MyMemory (backup)</option>
+              <option value="libretranslate" data-i18n="optEngineLibre">LibreTranslate (open source, needs an instance URL)</option>
             </optgroup>
-            <optgroup label="AI 档（用官网账号额度，无需自备 Key）">
-              <option value="oi-standard">Standard — 上下文更自然的 AI 翻译</option>
-              <option value="oi-premium">Premium — 顶级模型，专业场景</option>
+            <optgroup data-i18n-label="optEngineAiGroup" label="AI 档（用官网账号额度，无需自备 Key）">
+              <option value="oi-standard" data-i18n="optEngineStandard">Standard — context-aware AI translation</option>
+              <option value="oi-premium" data-i18n="optEnginePremium">Premium — top model, professional work</option>
             </optgroup>
-            <optgroup label="高质量引擎（自带 API Key）">
-              <option value="deepl">DeepL（质量最高，免费 50 万字/月）</option>
-              <option value="deepseek">DeepSeek（AI 翻译，成本极低）</option>
+            <optgroup data-i18n-label="optEngineKeyGroup" label="高质量引擎（自带 API Key）">
+              <option value="deepl" data-i18n="optEngineDeepL">DeepL (highest quality, 500K characters/month free)</option>
+              <option value="deepseek" data-i18n="optEngineDeepSeek">DeepSeek (AI translation, very low cost)</option>
               <option value="openai">OpenAI GPT-4o-mini</option>
             </optgroup>
           </select>
-          <p class="hint">
-            默认用免费的 Google，够日常使用。<strong>AI 档</strong>用
-            <a href="https://openimmersive.ai" target="_blank" rel="noopener">官网账号</a>的 credits，
-            在浏览器里登录官网即可生效（插件不保存任何登录凭据）；也可以自备 API Key 走下面的引擎。
-          </p>
+          <p class="hint" data-i18n-html="optEngineHint"></p>
         </div>
 
         <div class="sub-block">
-          <div class="sub-title">DeepL API Key <span class="label-hint">免费 50 万字/月</span></div>
+          <div class="sub-title"><span data-i18n="optDeepLKey">DeepL API key</span> <span class="label-hint" data-i18n="optDeepLFree">500K characters/month free</span></div>
           <div class="input-group">
             <input type="password" id="keyDeepL" placeholder="xxxxxxxx-xxxx-...:fx" />
-            <button class="btn-show" data-target="keyDeepL">显示</button>
+            <button class="btn-show" data-i18n="optShow" data-target="keyDeepL">Show</button>
           </div>
-          <p class="hint">在 <a href="https://www.deepl.com/pro-api" target="_blank" rel="noopener">deepl.com</a> 免费注册获取，以 ":fx" 结尾为免费版。</p>
+          <p class="hint" data-i18n-html="optDeepLHint"></p>
         </div>
 
         <div class="sub-block">
-          <div class="sub-title">DeepSeek API Key</div>
+          <div class="sub-title" data-i18n="optDeepSeekKey">DeepSeek API key</div>
           <div class="input-group">
             <input type="password" id="keyDeepSeek" placeholder="sk-..." />
-            <button class="btn-show" data-target="keyDeepSeek">显示</button>
+            <button class="btn-show" data-i18n="optShow" data-target="keyDeepSeek">Show</button>
           </div>
-          <p class="hint">在 <a href="https://platform.deepseek.com" target="_blank" rel="noopener">platform.deepseek.com</a> 获取，成本约 $0.001/千字。</p>
+          <p class="hint" data-i18n-html="optDeepSeekHint"></p>
         </div>
 
         <div class="sub-block">
-          <div class="sub-title">OpenAI API Key</div>
+          <div class="sub-title" data-i18n="optOpenAIKey">OpenAI API key</div>
           <div class="input-group">
             <input type="password" id="keyOpenAI" placeholder="sk-..." />
-            <button class="btn-show" data-target="keyOpenAI">显示</button>
+            <button class="btn-show" data-i18n="optShow" data-target="keyOpenAI">Show</button>
           </div>
-          <p class="hint">在 <a href="https://platform.openai.com" target="_blank" rel="noopener">platform.openai.com</a> 获取，使用 gpt-4o-mini。</p>
+          <p class="hint" data-i18n-html="optOpenAIHint"></p>
         </div>
 
         <div class="sub-block">
-          <div class="sub-title">LibreTranslate 实例地址 <span class="label-hint">（留空用公共实例）</span></div>
+          <div class="sub-title"><span data-i18n="optLibreUrl">LibreTranslate instance URL</span> <span class="label-hint" data-i18n="optLibreOptional">(leave empty for the public instance)</span></div>
           <input type="text" id="libreUrl" placeholder="https://libretranslate.com" />
-          <p class="hint">开源、可自托管，隐私最高。见 <a href="https://github.com/LibreTranslate/LibreTranslate" target="_blank" rel="noopener">LibreTranslate</a>。</p>
+          <p class="hint" data-i18n-html="optLibreHint"></p>
         </div>
 
         <div class="sub-block">
           <div class="toggle-row" style="padding:0;border:none">
             <div>
-              <div class="t-label">敏感信息脱敏（Beta）</div>
-              <div class="t-desc">发送前本地打码邮箱/电话/卡号/证件/API Key，译后自动还原</div>
+              <div class="t-label" data-i18n="optMask">Sensitive-data redaction (beta)</div>
+              <div class="t-desc" data-i18n="optMaskDesc">Mask emails, phone numbers, card and ID numbers and API keys locally before sending, then restore them in the translation</div>
             </div>
             <div class="t-right">
               <label class="switch"><input type="checkbox" id="maskSensitive" /><span class="slider"></span></label>
             </div>
           </div>
-          <p class="hint">检测与还原全部在浏览器本地完成，敏感原文不会发往翻译服务商。极少数情况引擎改写占位符会导致该处还原失败（不泄露信息），如遇异常可关闭。</p>
+          <p class="hint" data-i18n="optMaskHint">Detection and restoration happen entirely in your browser; the sensitive original never reaches a translation provider. In rare cases an engine rewrites a placeholder and that one spot cannot be restored (nothing leaks) — switch this off if you hit that.</p>
         </div>
 
         <div class="sub-block">
-          <div class="sub-title">PDF 翻译</div>
-          <p class="hint">整份 PDF 保留排版翻译（含学术论文公式）在网站上进行：<a href="https://pdf.openimmersive.ai/" target="_blank" rel="noopener">pdf.openimmersive.ai →</a></p>
+          <div class="sub-title" data-i18n="optPdf">PDF translation</div>
+          <p class="hint" data-i18n-html="optPdfHint"></p>
         </div>
 
       </div>
@@ -292,13 +286,9 @@
 
     <!-- 文件翻译（简单文本格式，本地解析，不上传） -->
     <div class="card">
-      <div class="card-header">翻译文件</div>
+      <div class="card-header" data-i18n="optFile">Translate a file</div>
       <div class="card-body">
-        <p class="hint" style="margin-top:0">
-          支持 <strong>.srt .ass .html .txt .md</strong>：在本地解析，只把文字送去翻译，
-          时间轴／标签／代码块原样保留。需要保留排版的 PDF、Word 等复杂文档，
-          请用 <a href="https://pdf.openimmersive.ai" target="_blank" rel="noopener">在线文档翻译</a>。
-        </p>
+        <p class="hint" style="margin-top:0" data-i18n-html="optFileHint"></p>
         <input type="file" id="fileInput" accept=".srt,.ass,.html,.txt,.md" />
         <div id="fileStatus" class="hint" style="margin-top:8px"></div>
         <a id="fileDownload" style="display:none"></a>
@@ -309,9 +299,8 @@
     <div class="card">
       <div class="card-body">
         <div class="privacy-info">
-          <strong>🔒 隐私保证</strong>
-          所有翻译请求直接从你的浏览器发往翻译服务商，无中间服务器、无代理、无数据收集。API Key 仅存本地。代码完全开源可审计。
-        </div>
+          <strong data-i18n="optPrivacyTitle">🔒 Privacy</strong>
+          <span data-i18n="optPrivacyBody">Every translation request goes straight from your browser to the translation provider — no middle server, no proxy, no data collection. API keys stay on this device. The code is open source and auditable.</span></div>
       </div>
     </div>
 
@@ -319,17 +308,18 @@
 
   <div class="save-bar">
     <div class="container">
-      <button class="btn-save" id="btnSave">保存设置</button>
-      <span class="save-msg" id="saveMsg">✅ 已保存</span>
+      <button class="btn-save" id="btnSave" data-i18n="optSave">Save settings</button>
+      <span class="save-msg" id="saveMsg" data-i18n="optSaved">✅ Saved</span>
     </div>
   </div>
 
   <div class="page-footer">
-    OpenImmersive Translator · AGPL-3.0 开源协议 ·
+    <span data-i18n="optFooter">OpenImmersive Translator · AGPL-3.0 ·</span>
     <a href="https://github.com/OpenImmersive/Open-Immersive-Translator" target="_blank" rel="noopener">GitHub</a>
-    · 无数据收集，无遥测
+    <span data-i18n="optFooterTail">· no data collection, no telemetry</span>
   </div>
 
+  <script src="i18n.js"></script>
   <script src="languages.js"></script>
   <script src="file-translate.js"></script>
   <script src="options.js"></script>

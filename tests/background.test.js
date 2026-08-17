@@ -33,7 +33,8 @@ function loadBg({ fetchImpl, storageData = {} } = {}) {
         query: () => Promise.resolve([{ id: 1 }]),
         sendMessage: () => Promise.resolve()
       },
-      commands: { onCommand: { addListener: fn => { listeners.command = fn; } } }
+      commands: { onCommand: { addListener: fn => { listeners.command = fn; } } },
+      i18n: require('./i18n-mock')
     },
     fetch: fetchImpl ?? (() => Promise.reject(new Error('fetch not configured'))),
     URL: global.URL,

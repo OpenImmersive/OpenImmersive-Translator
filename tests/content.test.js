@@ -25,7 +25,8 @@ beforeAll(() => {
     runtime: {
       onMessage: { addListener: () => {} },
       sendMessage: () => Promise.resolve({ success: true, translation: '测试翻译' })
-    }
+    },
+    i18n: require('./i18n-mock')
   };
 
   // Signal test mode before the IIFE runs
