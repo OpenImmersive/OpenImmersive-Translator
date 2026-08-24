@@ -131,13 +131,12 @@ async function translate({ text, engine, targetLang, sourceLang = 'auto' }) {
   switch (engine) {
     case 'oi-standard': result = await translateViaSite(text, targetLang, sourceLang, 'standard'); break;
     case 'oi-premium':  result = await translateViaSite(text, targetLang, sourceLang, 'premium'); break;
-    case 'google':     result = await translateGoogle(text, targetLang, sourceLang); break;
-    case 'mymemory':  result = await translateMyMemory(text, targetLang, sourceLang); break;
     case 'deepl':     result = await translateDeepL(text, targetLang, sourceLang, apiKeys.deepl); break;
     case 'openai':    result = await translateOpenAI(text, targetLang, sourceLang, apiKeys.openai); break;
     case 'deepseek':  result = await translateDeepSeek(text, targetLang, sourceLang, apiKeys.deepseek); break;
     case 'libretranslate': result = await translateLibre(text, targetLang, sourceLang, apiKeys.libretranslate_url); break;
-    default:          result = await translateGoogle(text, targetLang, sourceLang);
+    // 免费引擎（含未识别的引擎名）走互为备份的链条，见 translateFree。
+    default:          result = await translateFree(engine, text, targetLang, sourceLang);
   }
 
   if (masked && masked.entities.length) {
@@ -199,6 +198,50 @@ function siteLangName(code) {
   return map[code] || code;
 }
 
+// ===== 免费引擎链（互为备份）=====
+// 单个免费端点随时会限流：gtx 一整页几十次请求就可能开始回 429，Bing 的
+// token 也会过期。此前任一次失败都会让那一段无声地留在原文，整页看起来就是
+// 「点了没反应」。所以免费引擎按链条依次试，只有全部失败才把错误抛给上层。
+// 自带 Key 的引擎和官网 AI 档不参与——它们的失败是配置或额度问题，
+// 静默换引擎只会掩盖真正的原因。
+
+const FREE_CHAIN = ['google', 'microsoft', 'mymemory'];
+const FREE_IMPL = {
+  google:    (text, tl, sl) => translateGoogle(text, tl, sl),
+  microsoft: (text, tl, sl) => translateMicrosoft(text, tl, sl),
+  mymemory:  (text, tl, sl) => translateMyMemory(text, tl, sl),
+};
+
+// 刚失败过的引擎降到顺位末尾：一整页几十个块各自先撞一次同一面墙，
+// 等于把翻译时间翻倍。冷却期过了自然回到原顺位。
+const FREE_COOLDOWN_MS = 60000;
+const freeCooldown = new Map();
+
+function freeOrder(startEngine) {
+  const order = FREE_CHAIN.includes(startEngine)
+    ? [startEngine, ...FREE_CHAIN.filter(e => e !== startEngine)]
+    : [...FREE_CHAIN];
+  const now = Date.now();
+  const cooling = e => freeCooldown.get(e) > now;
+  // 全都在冷却期时仍然要一个个试，只是保持原顺序。
+  return [...order.filter(e => !cooling(e)), ...order.filter(cooling)];
+}
+
+async function translateFree(startEngine, text, targetLang, sourceLang) {
+  const errors = [];
+  for (const name of freeOrder(startEngine)) {
+    try {
+      const out = await FREE_IMPL[name](text, targetLang, sourceLang);
+      freeCooldown.delete(name);
+      return out;
+    } catch (err) {
+      freeCooldown.set(name, Date.now() + FREE_COOLDOWN_MS);
+      errors.push(err.message);
+    }
+  }
+  throw new Error(errors.join(' / '));
+}
+
 // ===== Google Translate（非官方免费接口，无需Key）=====
 
 async function translateGoogle(text, targetLang, sourceLang = 'auto') {
@@ -218,6 +261,109 @@ async function translateGoogle(text, targetLang, sourceLang = 'auto') {
     .filter(item => item && item[0])
     .map(item => item[0])
     .join('');
+}
+
+// ===== Microsoft / Bing（非官方免费接口，无需Key）=====
+// bing.com/translator 的页面里带着一对一次性的 key/token（服务端给的有效期
+// 写在同一处）和一个 IG 请求标识，抓出来缓存复用即可。实测这个端点只认浏览器
+// User-Agent —— 插件里的 fetch 用的就是浏览器自己的 UA，所以不需要伪造任何
+// 请求头；也不需要 cookie，因此显式 credentials:'omit'，不把用户已有的 Bing
+// 会话带出去。
+
+const MS_PAGE = 'https://www.bing.com/translator';
+const MS_API = 'https://www.bing.com/ttranslatev3';
+let msAuth = null; // { ig, key, token, expiresAt }
+
+async function msGetAuth() {
+  if (msAuth && msAuth.expiresAt > Date.now()) return msAuth;
+
+  const resp = await fetch(MS_PAGE, { credentials: 'omit' });
+  if (!resp.ok) throw new Error(`Microsoft: HTTP ${resp.status}`);
+  const html = await resp.text();
+
+  const ig = (html.match(/IG:"([A-Fa-f0-9]+)"/) || [])[1];
+  const abuse = html.match(/params_AbusePreventionHelper\s*=\s*\[\s*(\d+)\s*,\s*"([^"]+)"\s*,\s*(\d+)\s*\]/);
+  if (!ig || !abuse) throw new Error('Microsoft: auth token not found');
+
+  // 第三个数是有效期毫秒。提前 5 分钟作废，别让整页翻译卡在过期边界上。
+  const ttl = Math.max(Number(abuse[3]) - 300000, 60000);
+  msAuth = { ig, key: abuse[1], token: abuse[2], expiresAt: Date.now() + ttl };
+  return msAuth;
+}
+
+// 这个端点单次只吃 1000 字符，超了不是报错而是回 HTTP 200 + {"statusCode":400}
+// ——只断言状态码是发现不了的（实测 4000 字符照样 200）。所以长段落先按句子
+// 边界切块再依次送，Google 那边不需要这一步，别把限制搬到共用代码里。
+const MS_MAX_CHARS = 1000;
+
+function msChunk(text, limit = MS_MAX_CHARS) {
+  if (text.length <= limit) return [text];
+  const sentences = text.match(/[^.!?。！？]+[.!?。！？]*\s*/g) || [text];
+  const parts = [];
+  let buf = '';
+  for (const s of sentences) {
+    // 单句本身就超长时硬切：切得不好看也比整段丢掉好
+    for (let rest = s; rest.length; rest = rest.slice(limit)) {
+      const seg = rest.slice(0, limit);
+      if (buf && buf.length + seg.length > limit) { parts.push(buf); buf = seg; }
+      else buf += seg;
+    }
+  }
+  if (buf) parts.push(buf);
+  return parts;
+}
+
+async function translateMicrosoft(text, targetLang, sourceLang = 'auto') {
+  const chunks = msChunk(text);
+  if (chunks.length === 1) return msTranslateOne(text, targetLang, sourceLang);
+
+  // 顺序发而不是并发：同一段落的几块共用一个 token，也不想为一段正文
+  // 把请求量翻几倍。
+  const out = [];
+  for (const chunk of chunks) out.push(await msTranslateOne(chunk, targetLang, sourceLang));
+  return out.join('');
+}
+
+async function msTranslateOne(text, targetLang, sourceLang = 'auto', retried = false) {
+  const auth = await msGetAuth();
+  const form = [
+    ['fromLang', sourceLang === 'auto' ? 'auto-detect' : toMsLang(sourceLang)],
+    ['to', toMsLang(targetLang)],
+    ['text', text],
+    ['token', auth.token],
+    ['key', auth.key],
+  ].map(([k, v]) => `${k}=${encodeURIComponent(v)}`).join('&');
+
+  const resp = await fetch(`${MS_API}?isVertical=1&IG=${auth.ig}&IID=translator.5023`, {
+    method: 'POST',
+    credentials: 'omit',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: form,
+  });
+
+  // token 作废时回 401 + {"ShowCaptcha":false}。重取一次 token 再试；还不行就
+  // 抛出去让 translateFree 换引擎，不在这里反复重试。
+  if (resp.status === 401 && !retried) {
+    msAuth = null;
+    return msTranslateOne(text, targetLang, sourceLang, true);
+  }
+  if (!resp.ok) throw new Error(`Microsoft: HTTP ${resp.status}`);
+
+  const data = await resp.json();
+  // 业务错误藏在 200 里：{"statusCode":400} 而不是数组。当成失败抛出去，
+  // 让 translateFree 换引擎，别把它误当成「翻译结果为空」。
+  if (!Array.isArray(data)) {
+    throw new Error(`Microsoft: statusCode ${(data && data.statusCode) || 'unknown'}`);
+  }
+  const hit = data[0] && data[0].translations && data[0].translations[0];
+  if (!hit || typeof hit.text !== 'string') throw new Error('Microsoft: empty translation');
+  return hit.text;
+}
+
+// 微软用 zh-Hans / zh-Hant 这套写法，其余语言码直接透传。
+function toMsLang(code) {
+  const map = { 'zh-CN': 'zh-Hans', 'zh': 'zh-Hans', 'zh-TW': 'zh-Hant', 'zh-HK': 'zh-Hant' };
+  return map[code] || code;
 }
 
 // ===== MyMemory（免费，500词/次，无需Key）=====

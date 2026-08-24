@@ -69,6 +69,17 @@
       }
     }
   },
+  "popupEngineFailed": {
+    "message": "Engine failed: $REASON$",
+    "placeholders": {
+      "reason": {
+        "content": "$1"
+      }
+    }
+  },
+  "popupNothingTranslated": {
+    "message": "Nothing on this page was translated"
+  },
   "popupRestored": {
     "message": "Original restored"
   },
@@ -165,6 +176,9 @@
   "optEngineGoogle": {
     "message": "Google Translate ⭐ recommended (default)"
   },
+  "optEngineMicrosoft": {
+    "message": "Microsoft Translator (no key)"
+  },
   "optEngineMyMemory": {
     "message": "MyMemory (backup)"
   },
@@ -190,7 +204,7 @@
     "message": "DeepSeek (AI translation, very low cost)"
   },
   "optEngineHint": {
-    "message": "Free Google is the default and is enough for everyday reading. The <strong>AI tiers</strong> spend credits from your <a href=\"https://openimmersive.ai\" target=\"_blank\" rel=\"noopener\">website account</a> — log in there in this browser and they work here (the extension stores no credentials). You can also bring your own API key for the engines below."
+    "message": "Free Google is the default and is enough for everyday reading; if it is rate-limited the extension falls back to Microsoft on its own. The <strong>AI tiers</strong> spend credits from your <a href=\"https://openimmersive.ai\" target=\"_blank\" rel=\"noopener\">website account</a> — log in there in this browser and they work here (the extension stores no credentials). You can also bring your own API key for the engines below."
   },
   "optDeepLKey": {
     "message": "DeepL API key"
@@ -414,6 +428,9 @@
         "content": "$1"
       }
     }
+  },
+  "errUnknown": {
+    "message": "engine returned no reason"
   },
   "errNeedDeepLKey": {
     "message": "Add a DeepL API key in settings (the free tier covers 500K characters a month)"

@@ -30,6 +30,9 @@
     displayMode: 'bilingual', // 'bilingual' 双语对照 | 'replace' 仅显示译文
     translatedCount: 0,
     totalCount: 0,
+    // 整页 0 段成功时，这两个是唯一能回答「为什么点了没反应」的东西。
+    failedCount: 0,
+    lastError: '',
     pageKey: location.href
   };
 
@@ -84,7 +87,9 @@
           sendResponse({
             status: 'done',
             count: state.translatedCount,
-            total: state.totalCount
+            total: state.totalCount,
+            failed: state.failedCount,
+            error: state.lastError
           });
         }).catch(err => sendResponse({ status: 'error', message: err.message }));
         return true;
@@ -512,6 +517,8 @@
       const blocks = collectBlocks();
       state.totalCount = blocks.length;
       state.translatedCount = 0;
+      state.failedCount = 0;
+      state.lastError = '';
       updateProgressBar();
 
       if (blocks.length === 0) {
@@ -557,7 +564,9 @@
       await Promise.allSettled(workers);
       if (observer) observer.disconnect();
 
-      state.isTranslated = true;
+      // 一段都没插进去就不算「已翻译」：否则按钮翻成「恢复原文」，再点一次
+      // 只是把不存在的译文撤掉，用户永远回不到重试那一步。
+      state.isTranslated = state.translatedCount > 0;
     } finally {
       state.isTranslating = false;
       hideProgressBar();
@@ -592,10 +601,24 @@
         if (sameText(resp.translation, text)) return;
         injectTranslation(el, resp.translation);
         state.translatedCount++;
+        return;
       }
+      // 引擎失败是 resolve 出来的 { success:false, error }，不是 reject ——
+      // 这条 else 之前不存在，所以「Google 被限流」和「翻译成功但内容相同」
+      // 在页面上是同一个结果：什么都没发生。
+      recordFailure(resp && resp.error);
     } catch (err) {
-      // 静默失败，不打断其他段落
+      // 单段失败不打断其他段落，但必须留痕。此前这里是个空 catch，连
+      // 「background 不在」这种整页级故障都看不见。
+      recordFailure(err && err.message);
     }
+  }
+
+  // 只留第一条原话：几十个块通常败在同一个原因上，留第一条足够定位，
+  // 也不用把错误列表搬进 popup。
+  function recordFailure(message) {
+    state.failedCount++;
+    if (!state.lastError) state.lastError = message || T('errUnknown');
   }
 
   // ===== DOM 遍历：找到可翻译块 =====
@@ -999,7 +1022,9 @@
       looksLikeNameList,
       minTextLen,
       splitTweetParagraphs,
-      setDisplayMode: (m) => { state.displayMode = m; }
+      setDisplayMode: (m) => { state.displayMode = m; },
+      translateBlock,
+      state
     };
   }
 

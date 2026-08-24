@@ -984,3 +984,89 @@ describe('displayMode replace', () => {
     p.remove();
   });
 });
+
+// ─── 失败留痕（此前是个空 catch，整页 0 段成功和「页面本来就不需要翻」无法区分）──
+
+describe('translateBlock records why a segment failed', () => {
+  let el;
+  let original;
+
+  beforeEach(() => {
+    // global.browser 是在 beforeAll 里装起来的，describe 求值时还不存在
+    original = global.browser.runtime.sendMessage;
+    fns.state.failedCount = 0;
+    fns.state.lastError = '';
+    fns.state.translatedCount = 0;
+    el = document.createElement('p');
+    el.textContent = 'Teams ship code every single day and the tooling really matters.';
+    document.body.appendChild(el);
+  });
+
+  afterEach(() => {
+    el.remove();
+    global.browser.runtime.sendMessage = original;
+  });
+
+  test('engine failure arrives as { success:false } and is recorded, not swallowed', async () => {
+    global.browser.runtime.sendMessage = () =>
+      Promise.resolve({ success: false, error: 'Google: HTTP 429' });
+
+    await fns.translateBlock(el);
+
+    expect(fns.state.failedCount).toBe(1);
+    expect(fns.state.lastError).toBe('Google: HTTP 429');
+    expect(fns.state.translatedCount).toBe(0);
+  });
+
+  test('a rejected sendMessage (no background) is recorded too', async () => {
+    global.browser.runtime.sendMessage = () =>
+      Promise.reject(new Error('Could not establish connection'));
+
+    await fns.translateBlock(el);
+
+    expect(fns.state.failedCount).toBe(1);
+    expect(fns.state.lastError).toContain('Could not establish connection');
+  });
+
+  test('keeps the first reason when many segments fail the same way', async () => {
+    global.browser.runtime.sendMessage = () =>
+      Promise.resolve({ success: false, error: 'Google: HTTP 429' });
+    await fns.translateBlock(el);
+    global.browser.runtime.sendMessage = () =>
+      Promise.resolve({ success: false, error: 'MyMemory error' });
+    await fns.translateBlock(el);
+
+    expect(fns.state.failedCount).toBe(2);
+    expect(fns.state.lastError).toBe('Google: HTTP 429');
+  });
+
+  test('a reason-less failure still counts and gets a placeholder message', async () => {
+    global.browser.runtime.sendMessage = () => Promise.resolve({ success: false });
+
+    await fns.translateBlock(el);
+
+    expect(fns.state.failedCount).toBe(1);
+    expect(fns.state.lastError).toBeTruthy();
+  });
+
+  test('success leaves no failure trace', async () => {
+    global.browser.runtime.sendMessage = () =>
+      Promise.resolve({ success: true, translation: '团队每天都在交付代码，工具链很重要。' });
+
+    await fns.translateBlock(el);
+
+    expect(fns.state.failedCount).toBe(0);
+    expect(fns.state.lastError).toBe('');
+    expect(fns.state.translatedCount).toBe(1);
+  });
+
+  test('an unchanged translation is a skip, not a failure', async () => {
+    global.browser.runtime.sendMessage = () =>
+      Promise.resolve({ success: true, translation: el.textContent });
+
+    await fns.translateBlock(el);
+
+    expect(fns.state.failedCount).toBe(0);
+    expect(fns.state.translatedCount).toBe(0);
+  });
+});

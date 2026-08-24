@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "__MSG_extName__",
-  "version": "1.16.0",
+  "version": "1.16.1",
   "description": "__MSG_extDescShort__",
   "author": "OpenImmersive",
   "homepage_url": "https://github.com/OpenImmersive/Open-Immersive-Translator",

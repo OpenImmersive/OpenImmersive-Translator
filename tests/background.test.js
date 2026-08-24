@@ -561,3 +561,266 @@ describe('oiAuthStatus', () => {
     expect(r.user).toBeNull(); // 未登录
   });
 });
+
+// ─── translateMicrosoft ──────────────────────────────────────────────────────
+
+/**
+ * Mock the two-step Bing flow: GET bing.com/translator hands out IG + the
+ * one-time key/token pair, POST /ttranslatev3 returns the translation.
+ * `translateStatus` / `translateBody` let a test bend the second step only.
+ */
+function msFetch({ pageHtml, translateStatus = 200, translateBody, onCall } = {}) {
+  const html = pageHtml !== undefined ? pageHtml
+    : 'var IG:"ABC123DEF";var params_AbusePreventionHelper = [1787549684505,"tok-xyz",3600000];';
+  const body = translateBody !== undefined ? translateBody
+    : [{ translations: [{ text: '你好' }], detectedLanguage: { language: 'en' } }];
+  return (url, opts) => {
+    if (onCall) onCall(url, opts);
+    if (String(url).includes('/translator')) {
+      return Promise.resolve({ ok: true, status: 200, text: () => Promise.resolve(html) });
+    }
+    return Promise.resolve({
+      ok: translateStatus >= 200 && translateStatus < 300,
+      status: translateStatus,
+      json: () => Promise.resolve(body),
+      text: () => Promise.resolve('')
+    });
+  };
+}
+
+describe('toMsLang', () => {
+  const ctx = loadBg();
+  test.each([
+    ['zh-CN', 'zh-Hans'],
+    ['zh',    'zh-Hans'],
+    ['zh-TW', 'zh-Hant'],
+    ['zh-HK', 'zh-Hant'],
+    ['ja',    'ja'],
+    ['pt-BR', 'pt-BR']
+  ])('%s → %s', (input, expected) => {
+    expect(ctx.toMsLang(input)).toBe(expected);
+  });
+});
+
+describe('translateMicrosoft', () => {
+  test('returns the translation from the ttranslatev3 array', async () => {
+    const ctx = loadBg({ fetchImpl: msFetch() });
+    expect(await ctx.translateMicrosoft('Hello', 'zh-CN', 'en')).toBe('你好');
+  });
+
+  test('posts the scraped IG, key and token', async () => {
+    const calls = [];
+    const ctx = loadBg({ fetchImpl: msFetch({ onCall: (url, opts) => calls.push({ url: String(url), opts }) }) });
+    await ctx.translateMicrosoft('Hello', 'zh-CN', 'en');
+
+    const post = calls.find(c => c.url.includes('ttranslatev3'));
+    expect(post.url).toContain('IG=ABC123DEF');
+    expect(post.opts.body).toContain('token=tok-xyz');
+    expect(post.opts.body).toContain('key=1787549684505');
+    expect(post.opts.body).toContain('to=zh-Hans'); // zh-CN 必须映射成 zh-Hans
+    expect(post.opts.body).toContain('fromLang=en');
+  });
+
+  test('sends auto-detect when sourceLang is auto', async () => {
+    const calls = [];
+    const ctx = loadBg({ fetchImpl: msFetch({ onCall: (url, opts) => calls.push({ url: String(url), opts }) }) });
+    await ctx.translateMicrosoft('Hello', 'ja', 'auto');
+    const post = calls.find(c => c.url.includes('ttranslatev3'));
+    expect(post.opts.body).toContain('fromLang=auto-detect');
+  });
+
+  test('never attaches the user cookie jar', async () => {
+    const calls = [];
+    const ctx = loadBg({ fetchImpl: msFetch({ onCall: (url, opts) => calls.push({ url: String(url), opts }) }) });
+    await ctx.translateMicrosoft('Hello', 'zh-CN', 'en');
+    expect(calls.every(c => c.opts && c.opts.credentials === 'omit')).toBe(true);
+  });
+
+  test('percent-encodes the text instead of breaking the form body', async () => {
+    const calls = [];
+    const ctx = loadBg({ fetchImpl: msFetch({ onCall: (url, opts) => calls.push({ url: String(url), opts }) }) });
+    await ctx.translateMicrosoft('a&b=c d', 'zh-CN', 'en');
+    const post = calls.find(c => c.url.includes('ttranslatev3'));
+    expect(post.opts.body).toContain('text=a%26b%3Dc%20d');
+  });
+
+  test('reuses the cached token for a second segment', async () => {
+    let pageHits = 0;
+    const inner = msFetch();
+    const ctx = loadBg({
+      fetchImpl: (url, opts) => {
+        if (String(url).includes('/translator')) pageHits++;
+        return inner(url, opts);
+      }
+    });
+    await ctx.translateMicrosoft('one', 'zh-CN', 'en');
+    await ctx.translateMicrosoft('two', 'zh-CN', 'en');
+    expect(pageHits).toBe(1);
+  });
+
+  test('throws when the page carries no auth token', async () => {
+    const ctx = loadBg({ fetchImpl: msFetch({ pageHtml: '<html>nothing here</html>' }) });
+    await expect(ctx.translateMicrosoft('Hello', 'zh-CN')).rejects.toThrow('auth token not found');
+  });
+
+  test('re-fetches the token once on 401, then gives up', async () => {
+    let pageHits = 0;
+    const ctx = loadBg({
+      fetchImpl: (url) => {
+        if (String(url).includes('/translator')) {
+          pageHits++;
+          return Promise.resolve({ ok: true, status: 200, text: () => Promise.resolve('IG:"AA11";params_AbusePreventionHelper = [1,"t",3600000];') });
+        }
+        return Promise.resolve({ ok: false, status: 401, json: () => Promise.resolve({ ShowCaptcha: false }), text: () => Promise.resolve('') });
+      }
+    });
+    await expect(ctx.translateMicrosoft('Hello', 'zh-CN')).rejects.toThrow('Microsoft: HTTP 401');
+    expect(pageHits).toBe(2); // 首次 + token 作废后重取一次，不会无限重试
+  });
+
+  test('throws on an empty translations array', async () => {
+    const ctx = loadBg({ fetchImpl: msFetch({ translateBody: [] }) });
+    await expect(ctx.translateMicrosoft('Hello', 'zh-CN')).rejects.toThrow('empty translation');
+  });
+});
+
+// ─── free-engine chain ───────────────────────────────────────────────────────
+
+describe('translateFree (free engines back each other up)', () => {
+  /** google 429 → microsoft 正常 → mymemory 正常 */
+  function chainFetch({ googleStatus = 200, msStatus = 200 } = {}) {
+    const hits = [];
+    const impl = (url, opts) => {
+      const u = String(url);
+      hits.push(u);
+      if (u.includes('translate.googleapis.com')) {
+        return googleStatus === 200
+          ? Promise.resolve({ ok: true, status: 200, json: () => Promise.resolve([[['G译', 'x']]]) })
+          : Promise.resolve({ ok: false, status: googleStatus, json: () => Promise.reject(new Error('no json')), text: () => Promise.resolve('') });
+      }
+      if (u.includes('/translator')) {
+        return Promise.resolve({ ok: true, status: 200, text: () => Promise.resolve('IG:"BB22";params_AbusePreventionHelper = [9,"tk",3600000];') });
+      }
+      if (u.includes('ttranslatev3')) {
+        return msStatus === 200
+          ? Promise.resolve({ ok: true, status: 200, json: () => Promise.resolve([{ translations: [{ text: 'MS译' }] }]) })
+          : Promise.resolve({ ok: false, status: msStatus, json: () => Promise.resolve({}), text: () => Promise.resolve('') });
+      }
+      return Promise.resolve({ ok: true, status: 200, json: () => Promise.resolve({ responseStatus: 200, responseData: { translatedText: 'MM译' } }) });
+    };
+    impl.hits = hits;
+    return impl;
+  }
+
+  test('google first when nothing has failed', async () => {
+    const fetchImpl = chainFetch();
+    const ctx = loadBg({ fetchImpl });
+    expect(await ctx.translate({ text: 'Hello', engine: 'google', targetLang: 'zh-CN' })).toBe('G译');
+    expect(fetchImpl.hits.some(u => u.includes('bing.com'))).toBe(false);
+  });
+
+  test('falls back to microsoft when google is rate-limited', async () => {
+    const fetchImpl = chainFetch({ googleStatus: 429 });
+    const ctx = loadBg({ fetchImpl });
+    expect(await ctx.translate({ text: 'Hello', engine: 'google', targetLang: 'zh-CN' })).toBe('MS译');
+  });
+
+  test('falls through to mymemory when google and microsoft both fail', async () => {
+    const fetchImpl = chainFetch({ googleStatus: 429, msStatus: 500 });
+    const ctx = loadBg({ fetchImpl });
+    expect(await ctx.translate({ text: 'Hello', engine: 'google', targetLang: 'zh-CN' })).toBe('MM译');
+  });
+
+  test('a failed engine is skipped first on the next segment (cooldown)', async () => {
+    const fetchImpl = chainFetch({ googleStatus: 429 });
+    const ctx = loadBg({ fetchImpl });
+    await ctx.translate({ text: 'one', engine: 'google', targetLang: 'zh-CN' });
+    const afterFirst = fetchImpl.hits.length;
+    await ctx.translate({ text: 'two', engine: 'google', targetLang: 'zh-CN' });
+    // 第二段不再重撞 google：整页几十个块不该各自先吃一次 429
+    expect(fetchImpl.hits.slice(afterFirst).some(u => u.includes('translate.googleapis.com'))).toBe(false);
+  });
+
+  test('picking microsoft explicitly calls bing first', async () => {
+    const fetchImpl = chainFetch();
+    const ctx = loadBg({ fetchImpl });
+    expect(await ctx.translate({ text: 'Hello', engine: 'microsoft', targetLang: 'zh-CN' })).toBe('MS译');
+    expect(fetchImpl.hits.some(u => u.includes('translate.googleapis.com'))).toBe(false);
+  });
+
+  test('reports every engine reason when the whole chain is down', async () => {
+    const ctx = loadBg({ fetchImpl: () => Promise.resolve({ ok: false, status: 503, json: () => Promise.reject(new Error('no json')), text: () => Promise.resolve('') }) });
+    await expect(ctx.translate({ text: 'Hello', engine: 'google', targetLang: 'zh-CN' }))
+      .rejects.toThrow(/Google: HTTP 503.*Microsoft: HTTP 503.*MyMemory: HTTP 503/);
+  });
+
+  test('BYOK engines do not silently fall back to a free engine', async () => {
+    // DeepL 挂了要报 DeepL 的错，不能悄悄换成 Google —— 否则用户永远不知道自己的 Key 坏了
+    const free = chainFetch();
+    const fetchImpl = (url, opts) => String(url).includes('deepl')
+      ? Promise.resolve({ ok: false, status: 456, text: () => Promise.resolve('quota'), json: () => Promise.reject(new Error('no json')) })
+      : free(url, opts);
+    const ctx = loadBg({ fetchImpl, storageData: { apiKeys: { deepl: 'k' } } });
+    await expect(ctx.translate({ text: 'Hello', engine: 'deepl', targetLang: 'zh-CN' })).rejects.toThrow('DeepL: HTTP 456');
+    expect(free.hits.some(u => u.includes('translate.googleapis.com'))).toBe(false);
+  });
+});
+
+// ─── Bing 的 1000 字符上限（超了回 HTTP 200 + statusCode 400，只看状态码看不见）──
+
+describe('msChunk / long-paragraph handling', () => {
+  const ctx = loadBg();
+
+  test('short text stays one chunk', () => {
+    expect(ctx.msChunk('hello world')).toEqual(['hello world']);
+  });
+
+  test('every chunk stays within the limit', () => {
+    const text = 'The quick brown fox jumps over the lazy dog. '.repeat(89); // ~4000 chars
+    const chunks = ctx.msChunk(text);
+    expect(chunks.length).toBeGreaterThan(1);
+    expect(chunks.every(c => c.length <= 1000)).toBe(true);
+  });
+
+  test('chunks concatenate back to the original text', () => {
+    const text = 'The quick brown fox jumps over the lazy dog. '.repeat(89);
+    expect(ctx.msChunk(text).join('')).toBe(text);
+  });
+
+  test('splits on sentence ends, not mid-sentence', () => {
+    const text = ('Sentence about shipping software that is reasonably long. ').repeat(40);
+    expect(ctx.msChunk(text).slice(0, -1).every(c => /[.!?。！？]\s*$/.test(c))).toBe(true);
+  });
+
+  test('a single overlong sentence is hard-split rather than dropped', () => {
+    const text = 'a'.repeat(2500);
+    const chunks = ctx.msChunk(text);
+    expect(chunks.every(c => c.length <= 1000)).toBe(true);
+    expect(chunks.join('')).toBe(text);
+  });
+
+  test('a long paragraph is sent in pieces and stitched back', async () => {
+    const posts = [];
+    const ctx2 = loadBg({
+      fetchImpl: (url, opts) => {
+        if (String(url).includes('/translator')) {
+          return Promise.resolve({ ok: true, status: 200, text: () => Promise.resolve('IG:"CC33";params_AbusePreventionHelper = [7,"tk",3600000];') });
+        }
+        posts.push(opts.body);
+        return Promise.resolve({ ok: true, status: 200, json: () => Promise.resolve([{ translations: [{ text: `[${posts.length}]` }] }]) });
+      }
+    });
+    const out = await ctx2.translateMicrosoft('The quick brown fox jumps over the lazy dog. '.repeat(89), 'zh-CN', 'en');
+    expect(posts.length).toBeGreaterThan(1);
+    expect(out).toBe(posts.map((_, i) => `[${i + 1}]`).join(''));
+  });
+
+  test('a 200 response carrying statusCode 400 is a failure, not an empty translation', async () => {
+    const ctx2 = loadBg({
+      fetchImpl: (url) => String(url).includes('/translator')
+        ? Promise.resolve({ ok: true, status: 200, text: () => Promise.resolve('IG:"DD44";params_AbusePreventionHelper = [7,"tk",3600000];') })
+        : Promise.resolve({ ok: true, status: 200, json: () => Promise.resolve({ statusCode: 400, errorMessage: '' }) })
+    });
+    await expect(ctx2.translateMicrosoft('Hello', 'zh-CN')).rejects.toThrow('Microsoft: statusCode 400');
+  });
+});

@@ -69,6 +69,17 @@
       }
     }
   },
+  "popupEngineFailed": {
+    "message": "引擎失败：$REASON$",
+    "placeholders": {
+      "reason": {
+        "content": "$1"
+      }
+    }
+  },
+  "popupNothingTranslated": {
+    "message": "这个页面没有翻出任何内容"
+  },
   "popupRestored": {
     "message": "已恢复原文"
   },
@@ -165,6 +176,9 @@
   "optEngineGoogle": {
     "message": "Google 翻译 ⭐ 推荐（默认）"
   },
+  "optEngineMicrosoft": {
+    "message": "Microsoft 翻译（无需 Key）"
+  },
   "optEngineMyMemory": {
     "message": "MyMemory（备用）"
   },
@@ -190,7 +204,7 @@
     "message": "DeepSeek（AI 翻译，成本极低）"
   },
   "optEngineHint": {
-    "message": "默认用免费的 Google，够日常使用。<strong>AI 档</strong>用 <a href=\"https://openimmersive.ai\" target=\"_blank\" rel=\"noopener\">官网账号</a>的 credits，在浏览器里登录官网即可生效（插件不保存任何登录凭据）；也可以自备 API Key 走下面的引擎。"
+    "message": "默认用免费的 Google，够日常使用；被限流时会自动改用 Microsoft 兜底。<strong>AI 档</strong>用 <a href=\"https://openimmersive.ai\" target=\"_blank\" rel=\"noopener\">官网账号</a>的 credits，在浏览器里登录官网即可生效（插件不保存任何登录凭据）；也可以自备 API Key 走下面的引擎。"
   },
   "optDeepLKey": {
     "message": "DeepL API Key"
@@ -414,6 +428,9 @@
         "content": "$1"
       }
     }
+  },
+  "errUnknown": {
+    "message": "引擎未给出原因"
   },
   "errNeedDeepLKey": {
     "message": "请在设置页配置 DeepL API Key（免费版每月50万字）"

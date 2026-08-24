@@ -156,6 +156,14 @@ function updateUI(resp) {
   }
   if (resp.isTranslated || resp.status === 'done') {
     const count = resp.count || resp.translatedCount || 0;
+    // 0 段还报「已翻译 0 个段落」、按钮还翻成「恢复原文」，等于把失败演成成功。
+    // 有引擎原话就把原话显示出来——这是用户唯一能看到的失败原因。
+    if (!count) {
+      setStatus('dot-off', resp.error ? t('popupEngineFailed', resp.error) : t('popupNothingTranslated'));
+      btnTranslate.textContent = t('popupTranslatePage');
+      btnTranslate.classList.remove('active');
+      return;
+    }
     setStatus('dot-on', t('popupDoneCount', count));
     btnTranslate.textContent = t('popupRestore');
     btnTranslate.classList.add('active');
