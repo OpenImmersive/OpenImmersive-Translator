@@ -1,10 +1,10 @@
 # 隐私政策 / Privacy Policy
 
-**语灵灵（YuLingLing）** — 最后更新 / Last updated: 2026-07-03
+**OpenImmersive Translator** — 最后更新 / Last updated: 2026-08-15
 
 ## 中文
 
-语灵灵是一款开源、隐私优先的双语网页翻译浏览器扩展。
+OpenImmersive Translator 是一款开源、隐私优先的双语网页翻译浏览器扩展。
 
 **我们不收集任何数据。** 具体而言：
 
@@ -25,7 +25,7 @@
 
 ## English
 
-YuLingLing is an open-source, privacy-first bilingual webpage translation extension.
+OpenImmersive Translator is an open-source, privacy-first bilingual webpage translation extension.
 
 **We collect no data.** Specifically:
 

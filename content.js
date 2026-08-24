@@ -1,6 +1,6 @@
 'use strict';
 
-// 语灵灵 Content Script - 页面翻译与划词翻译
+// OpenImmersive Translator Content Script - 页面翻译与划词翻译
 // 隐私保证：所有API调用通过background.js直接发往翻译服务商
 
 (function () {
@@ -738,7 +738,7 @@
     // 跳过已翻译
     if (el.dataset.yllDone) return false;
 
-    // 跳过语灵灵自己插入的元素
+    // 跳过本扩展自己插入的元素
     if (el.dataset.yllUi) return false;
     if (el.closest('[data-yll-ui]')) return false;
 
@@ -799,7 +799,7 @@
       if (node.nodeType === Node.TEXT_NODE) {
         text += node.textContent;
       } else if (node.nodeType === Node.ELEMENT_NODE) {
-        // 跳过语灵灵注入的内容
+        // 跳过本扩展注入的内容
         if (node.dataset.yllInject) continue;
         // 也跳过不该当正文的子树：维基条目里 <style> 常嵌在 <span> 之类的
         // 元素内部，只看直接子元素会漏掉，整段 CSS 就被当文字送去翻译

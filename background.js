@@ -7,7 +7,7 @@ const T = (k, subs) => {
   catch { return k; }
 };
 
-// 语灵灵 Background Script - 翻译引擎路由
+// OpenImmersive Translator Background Script - 翻译引擎路由
 // 所有API请求直接从浏览器发出，无中间服务器
 
 const api = typeof browser !== 'undefined' ? browser : chrome;
