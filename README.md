@@ -1,4 +1,4 @@
-# Open Immersive Translator
+# OpenImmersive Translator
 
 [![CI](https://github.com/OpenImmersive/Open-Immersive-Translator/actions/workflows/ci.yml/badge.svg)](https://github.com/OpenImmersive/Open-Immersive-Translator/actions/workflows/ci.yml)
 [![License: AGPL v3](https://img.shields.io/badge/License-AGPL_v3-blue.svg)](LICENSE)
