@@ -27,7 +27,7 @@ The vision is to make AI-powered translation more trustworthy, easier to use, an
 - **Privacy by architecture** — translation requests go directly from your browser to the engine you choose. No middle server, no proxy, no telemetry, zero data collection ([privacy policy](PRIVACY.md)).
 - **Sensitive-data masking (Beta)** — optional, off by default. Emails, phone numbers, bank card numbers (Luhn-validated), national ID numbers, and API keys (`sk-…`, `ghp_…`, `AKIA…`, JWT, …) are detected **locally**, replaced with placeholders before the text is sent to any engine, and restored locally afterwards. The originals never leave your browser. See [`sensitive-mask.js`](sensitive-mask.js).
 - **Transparent engines, BYOK** — free out of the box (Google, MyMemory, LibreTranslate — self-hostable); bring your own key for DeepL / OpenAI / DeepSeek. Keys are stored in `storage.local` only.
-- **14 target languages**, Chrome (MV3 service worker) and Firefox (MV3 event page) supported.
+- **199 target languages** with the default Google engine (other engines cover fewer): the 20 most-used in the popup, all 199 in Settings. Chrome (MV3 service worker) and Firefox (MV3 event page) supported.
 
 ## Install
 
