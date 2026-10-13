@@ -16,6 +16,9 @@ const statusText = document.getElementById('statusText');
 let currentTab = null;
 let currentHost = '';
 let currentPageLang = '';
+let savedLang = '';
+// 下拉末尾那条「全部 N 种语言」：选中它只是去设置页，不是一个语言码。
+const ALL_LANGS_OPTION = '__all__';
 // popup 只列常用语言；用户在设置页选了冷门语言时把它插进来，否则下拉里看不到自己的选择。
 function fillPopupLanguages(current) {
   const seen = new Set();
@@ -30,6 +33,11 @@ function fillPopupLanguages(current) {
   };
   YLLangs.COMMON.forEach(add);
   if (current) add(current);
+  // 只露常用的几十种，用户会以为插件只支持这些，所以给全表留一个入口。
+  const all = document.createElement('option');
+  all.value = ALL_LANGS_OPTION;
+  all.textContent = t('popupAllLanguages', YLLangs.count);
+  selLang.appendChild(all);
 }
 
 // 「总是翻译该语言」里那个语种名：查语言表拿当前界面语言下的写法。
@@ -45,6 +53,7 @@ async function init() {
   const data = await getStorage(['targetLang', 'engine', 'hoverTranslate', 'autoTranslateSites', 'floatBall', 'autoTranslateLangs']);
   fillPopupLanguages(data.targetLang);
   selLang.value = data.targetLang || 'zh-CN';
+  savedLang = selLang.value;
   engine = data.engine || 'google';
   swHover.checked = data.hoverTranslate !== false; // 默认开
   swFloatBall.checked = data.floatBall !== false; // 默认开
@@ -96,7 +105,16 @@ btnTranslate.addEventListener('click', async () => {
 
 // ===== 设置变更自动保存 =====
 
-selLang.addEventListener('change', () => setStorage({ targetLang: selLang.value }));
+selLang.addEventListener('change', () => {
+  if (selLang.value === ALL_LANGS_OPTION) {
+    selLang.value = savedLang;
+    api.runtime.openOptionsPage();
+    window.close();
+    return;
+  }
+  savedLang = selLang.value;
+  setStorage({ targetLang: selLang.value });
+});
 swHover.addEventListener('change', () => setStorage({ hoverTranslate: swHover.checked }));
 swFloatBall.addEventListener('change', () => setStorage({ floatBall: swFloatBall.checked }));
 

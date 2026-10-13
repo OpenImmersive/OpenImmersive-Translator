@@ -11,6 +11,14 @@
   "popupRestore": {
     "message": "恢复原文"
   },
+  "popupAllLanguages": {
+    "message": "全部 $COUNT$ 种语言…",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
   "popupTranslateTo": {
     "message": "翻译成"
   },

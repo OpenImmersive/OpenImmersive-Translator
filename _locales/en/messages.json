@@ -11,6 +11,14 @@
   "popupRestore": {
     "message": "Show original"
   },
+  "popupAllLanguages": {
+    "message": "All $COUNT$ languages…",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
   "popupTranslateTo": {
     "message": "Translate into"
   },
