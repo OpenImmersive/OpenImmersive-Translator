@@ -78,7 +78,7 @@ document.getElementById('btnSave').addEventListener('click', async () => {
 
 // ===== 显示/隐藏 API Key =====
 
-document.querySelectorAll('.btn-show').forEach(btn => {
+document.querySelectorAll('.btn-show[data-target]').forEach(btn => {
   btn.addEventListener('click', () => {
     const input = document.getElementById(btn.dataset.target);
     if (input.type === 'password') {
@@ -106,9 +106,13 @@ function setStorage(items) {
 
 let oiSiteUrl = 'https://openimmersive.ai';
 
+const AI_ENGINES = ['oi-standard', 'oi-premium'];
+
 async function refreshOiAccount() {
   const el = document.getElementById('oiAcctStatus');
+  const next = document.getElementById('oiAcctNext');
   el.textContent = t('optChecking');
+  next.style.display = 'none';
   try {
     const resp = await api.runtime.sendMessage({ type: 'oiAuthStatus' });
     if (!resp || !resp.success) throw new Error(resp ? resp.error : t('commError'));
@@ -123,15 +127,29 @@ async function refreshOiAccount() {
     }
     const u = resp.user;
     el.textContent = t('optAcctSignedIn', u.email, u.plan || 'free', u.credits ?? 0);
+    // The AI tiers sit folded under Advanced, so a balance shown here is a
+    // dead end unless the switch to spending it is offered beside it.
+    const { engine } = await getStorage(['engine']);
+    if ((u.credits ?? 0) > 0 && !AI_ENGINES.includes(engine)) next.style.display = '';
   } catch (err) {
     el.textContent = t('optAcctFailed', err.message);
   }
 }
 
+// The site opens its sign-in / sign-up dialog on ?login=1.
 document.getElementById('btnOiLogin').addEventListener('click', () => {
-  window.open(oiSiteUrl, '_blank');
+  window.open(`${oiSiteUrl}/?login=1`, '_blank');
 });
 document.getElementById('btnOiRefresh').addEventListener('click', refreshOiAccount);
+document.getElementById('btnOiUseStandard').addEventListener('click', async () => {
+  const btn = document.getElementById('btnOiUseStandard');
+  document.getElementById('defEngine').value = 'oi-standard';
+  await setStorage({ engine: 'oi-standard' });
+  // Saved on the spot: the page's Save button is a screen away, and the
+  // confirmation has to sit where the click was.
+  btn.previousElementSibling.textContent = t('optUseStandardDone');
+  btn.style.display = 'none';
+});
 
 // ===== 启动 =====
 loadSettings().catch(console.error);

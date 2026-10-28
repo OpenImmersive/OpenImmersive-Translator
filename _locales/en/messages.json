@@ -301,7 +301,7 @@
     "message": "The AI tiers are coming to the extension soon (the free Google tier is unaffected)"
   },
   "optAcctSignedOut": {
-    "message": "Not signed in — press \"Log in / Sign up\", finish on the website, then come back and refresh"
+    "message": "Not signed in — signing up is free and comes with starter credits for the AI tiers. Press \"Log in / Sign up\", finish on the website, then come back and refresh"
   },
   "optAcctSignedIn": {
     "message": "Signed in: $EMAIL$ · plan $PLAN$ · balance $CREDITS$ credits",
@@ -316,6 +316,15 @@
         "content": "$3"
       }
     }
+  },
+  "optAcctNextStep": {
+    "message": "Your balance is only spent by the AI tiers. The engine is still the free Google tier — switch to Standard to start using it."
+  },
+  "optUseStandard": {
+    "message": "Switch to Standard"
+  },
+  "optUseStandardDone": {
+    "message": "Done — pages now translate with Standard and spend your balance. Switch back any time under Advanced."
   },
   "optAcctFailed": {
     "message": "Could not check status: $ERROR$",
@@ -411,7 +420,7 @@
     "message": "communication error"
   },
   "errLoginRequired": {
-    "message": "Log in at $SITE$ to use the AI tiers (the free Google tier needs no account)",
+    "message": "Sign up free or log in at $SITE$ to use the AI tiers — the free Google tier needs no account",
     "placeholders": {
       "site": {
         "content": "$1"

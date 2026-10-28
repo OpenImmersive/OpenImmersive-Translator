@@ -152,6 +152,12 @@ async function translate({ text, engine, targetLang, sourceLang = 'auto' }) {
 
 const OI_SITE = 'https://openimmersive.ai';
 
+// The site opens its sign-in / sign-up dialog on this query, so a hint can
+// land the user in the form instead of on the home page.
+function siteLoginUrl(site) {
+  return `${site}/?login=1`;
+}
+
 async function translateViaSite(text, targetLang, sourceLang, tier) {
   // oiSiteBase：内部测试用的官网地址覆盖（正式发布不暴露 UI，storage 手工写入）
   const { oiSiteBase } = await storageGet(['oiSiteBase']);
@@ -172,7 +178,7 @@ async function translateViaSite(text, targetLang, sourceLang, tier) {
   try { data = await resp.json(); } catch (_) { /* 非 JSON 走下面的状态码分支 */ }
 
   if (resp.status === 401) {
-    throw new Error(T('errLoginRequired', [site]));
+    throw new Error(T('errLoginRequired', [siteLoginUrl(site)]));
   }
   if (resp.status === 402) {
     throw new Error(T('errOutOfCredits', [site]));

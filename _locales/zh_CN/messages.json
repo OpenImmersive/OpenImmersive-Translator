@@ -301,7 +301,7 @@
     "message": "AI 翻译档即将上线，敬请期待（免费 Google 档不受影响）"
   },
   "optAcctSignedOut": {
-    "message": "未登录 —— 点「登录 / 注册」在官网完成登录后回来刷新"
+    "message": "未登录 —— 注册免费，并赠送可用于 AI 翻译档的初始额度。点「登录 / 注册」在官网完成后回来刷新"
   },
   "optAcctSignedIn": {
     "message": "已登录：$EMAIL$ · 套餐 $PLAN$ · 余额 $CREDITS$ credits",
@@ -316,6 +316,15 @@
         "content": "$3"
       }
     }
+  },
+  "optAcctNextStep": {
+    "message": "余额只有 AI 翻译档会用到。当前引擎仍是免费的 Google 档——切到 Standard 才会开始使用余额。"
+  },
+  "optUseStandard": {
+    "message": "切到 Standard"
+  },
+  "optUseStandardDone": {
+    "message": "已切换 —— 网页翻译现在走 Standard 并使用余额。随时可在「高级」里切回。"
   },
   "optAcctFailed": {
     "message": "状态查询失败：$ERROR$",
@@ -411,7 +420,7 @@
     "message": "通信错误"
   },
   "errLoginRequired": {
-    "message": "需要登录 $SITE$ 才能使用 AI 翻译档（免费的 Google 档无需登录）",
+    "message": "在 $SITE$ 免费注册或登录后才能使用 AI 翻译档（免费的 Google 档无需账号）",
     "placeholders": {
       "site": {
         "content": "$1"

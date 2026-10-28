@@ -202,7 +202,31 @@ function setStatus(dotClass, text) {
   statusDot.className = 'status-dot';
   if (dotClass === 'dot-on') statusDot.classList.add('on');
   if (dotClass === 'dot-loading') statusDot.classList.add('loading');
-  statusText.textContent = text;
+  statusText.textContent = '';
+  linkify(text).forEach(n => statusText.appendChild(n));
+}
+
+// A failure that asks the user to go to the site ("log in at …", "top up at
+// …") must be one click away, not a URL to retype: every http(s) address in
+// a status line becomes a link that opens in a new tab.
+const URL_RE = /https?:\/\/[^\s)）]+/g;
+function linkify(text) {
+  const out = [];
+  let last = 0;
+  for (const m of String(text).matchAll(URL_RE)) {
+    if (m.index > last) out.push(document.createTextNode(text.slice(last, m.index)));
+    const a = document.createElement('a');
+    a.href = m[0];
+    a.textContent = m[0];
+    a.addEventListener('click', e => {
+      e.preventDefault();
+      api.tabs.create({ url: m[0] });
+    });
+    out.push(a);
+    last = m.index + m[0].length;
+  }
+  if (last < text.length) out.push(document.createTextNode(text.slice(last)));
+  return out;
 }
 
 // ===== Storage 工具 =====
