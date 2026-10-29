@@ -1,0 +1,5 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Website, PDF and document translation (openimmersive.ai)
+    url: https://openimmersive.ai/about
+    about: The website and its Standard / Premium AI tiers are a hosted service outside this repository; contact us there.

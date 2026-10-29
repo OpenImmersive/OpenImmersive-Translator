@@ -1,7 +1,11 @@
 # OpenImmersive Translator
 
-[![CI](https://github.com/OpenImmersive/Open-Immersive-Translator/actions/workflows/ci.yml/badge.svg)](https://github.com/OpenImmersive/Open-Immersive-Translator/actions/workflows/ci.yml)
+[![CI](https://github.com/OpenImmersive/OpenImmersive-Translator/actions/workflows/ci.yml/badge.svg)](https://github.com/OpenImmersive/OpenImmersive-Translator/actions/workflows/ci.yml)
 [![License: AGPL v3](https://img.shields.io/badge/License-AGPL_v3-blue.svg)](LICENSE)
+
+**OpenImmersive Translator** ([openimmersive.ai](https://openimmersive.ai)) is an open-source browser extension for Chrome, Firefox and Edge that shows each paragraph of a web page followed by its translation. It is an open-source alternative to Immersive Translate: the Google, Microsoft and MyMemory engines are free and need no account, and with your own DeepL, OpenAI or DeepSeek key, requests go from your browser straight to that provider.
+
+![A Wikipedia article in English with each paragraph followed by its Chinese translation](docs/screenshot-bilingual.png)
 
 ## About This Project
 
@@ -24,12 +28,21 @@ The vision is to make AI-powered translation more trustworthy, easier to use, an
 ## Features
 
 - **Bilingual, in place** — side-by-side translation on the page you are reading. No copy-paste, no uploading your content to someone else's website. Toggle with `Alt+T`.
-- **Privacy by architecture** — translation requests go directly from your browser to the engine you choose. No middle server, no proxy, no telemetry, zero data collection ([privacy policy](PRIVACY.md)).
+- **Privacy by architecture** — with the free engines or your own API key, translation requests go directly from your browser to the engine you choose, with no server of ours in between, and the extension sends no telemetry ([privacy policy](PRIVACY.md)). The optional Standard and Premium AI tiers are the exception: they send the text to openimmersive.ai, need an openimmersive.ai account and spend credits (see the [website privacy policy](https://openimmersive.ai/privacy)).
 - **Sensitive-data masking (Beta)** — optional, off by default. Emails, phone numbers, bank card numbers (Luhn-validated), national ID numbers, and API keys (`sk-…`, `ghp_…`, `AKIA…`, JWT, …) are detected **locally**, replaced with placeholders before the text is sent to any engine, and restored locally afterwards. The originals never leave your browser. See [`sensitive-mask.js`](sensitive-mask.js).
 - **Transparent engines, BYOK** — free out of the box with no account (Google, Microsoft, MyMemory), LibreTranslate on a self-hosted instance; bring your own key for DeepL / OpenAI / DeepSeek. Keys are stored in `storage.local` only.
-- **199 target languages** with the default Google engine (other engines cover fewer): the 20 most-used in the popup, all 199 in Settings. Chrome (MV3 service worker) and Firefox (MV3 event page) supported.
+- **199 target languages** with the default Google engine (other engines cover fewer): the 20 most-used in the popup, all 199 in Settings. Chrome and Edge (MV3 service worker) and Firefox (MV3 event page) supported.
+- **File translation** — translate .srt, .ass, .html, .txt and .md files from the options page. Only the text is translated; subtitle timing, HTML tags and Markdown code blocks are kept.
+- **Free engines back each other up** — if Google is rate-limited, the extension tries Microsoft, then MyMemory, so a page does not stall without your own API key.
+- **Optional AI tiers** — Standard and Premium give context-aware AI translation through an openimmersive.ai account (credits). Everything else works without an account.
+
+## The website
+
+[openimmersive.ai](https://openimmersive.ai) also translates files: PDF with the layout kept, EPUB, PowerPoint, Word, Excel and SRT. Only this extension is open source; the website, including the Standard and Premium AI tiers, is a hosted service.
 
 ## Install
+
+**From the store:** [Chrome Web Store](https://chromewebstore.google.com/detail/klahcooagpabkjnmhlelekijcjanhipb) · [Firefox Add-ons](https://addons.mozilla.org/firefox/addon/open-immersive-translator/) · [Microsoft Edge Add-ons](https://microsoftedge.microsoft.com/addons/detail/libcfiffjapclboglfkhdbnledcjmape)
 
 **From source (Chrome / Edge):**
 
@@ -38,8 +51,6 @@ The vision is to make AI-powered translation more trustworthy, easier to use, an
 3. *Load unpacked* → select the repository folder
 
 **From source (Firefox):** in `manifest.json`, replace the `background` block with `{"scripts": ["sensitive-mask.js", "background.js"]}`, then load via `about:debugging` → *Load Temporary Add-on*.
-
-Store listings (Chrome Web Store / Firefox Add-ons) are pending review.
 
 ## How sensitive-data masking works
 
@@ -63,6 +74,8 @@ npm test        # jest — unit + integration (masking round-trips through trans
 ```
 
 No build step: the extension loads directly from source. `background.js` routes all engines through a single `translate()` entry point; `sensitive-mask.js` is a dependency-free UMD module.
+
+If OpenImmersive Translator is useful to you, a ⭐ on this repository helps other people find it.
 
 ## License
 
