@@ -76,7 +76,7 @@ api.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.type === 'translate') {
     translate(message)
       .then(result => sendResponse({ success: true, translation: result }))
-      .catch(err => sendResponse({ success: false, error: err.message }));
+      .catch(err => sendResponse({ success: false, error: err.message, code: err.code, site: err.site }));
     return true; // 保持异步通道
   }
 
@@ -100,7 +100,23 @@ api.runtime.onMessage.addListener((message, sender, sendResponse) => {
       .catch(err => sendResponse({ success: false, error: err.message }));
     return true;
   }
+
+  // 设置页的「退出登录」：在官网登出（会话 cookie 是官网的，插件只是带着它去）
+  if (message.type === 'oiLogout') {
+    oiLogout()
+      .then(sendResponse)
+      .catch(err => sendResponse({ success: false, error: err.message }));
+    return true;
+  }
 });
+
+async function oiLogout() {
+  const { oiSiteBase } = await storageGet(['oiSiteBase']);
+  const site = oiSiteBase || OI_SITE;
+  const resp = await fetch(`${site}/api/auth/logout`, { method: 'POST', credentials: 'include' });
+  if (!resp.ok) throw new Error(T('errSiteStatus', [String(resp.status)]));
+  return { success: true };
+}
 
 // 官网会员状态。404 = 新站尚未部署到该地址（AI 档即将上线的同一状态）。
 async function oiAuthStatus() {
@@ -152,12 +168,6 @@ async function translate({ text, engine, targetLang, sourceLang = 'auto' }) {
 
 const OI_SITE = 'https://openimmersive.ai';
 
-// The site opens its sign-in / sign-up dialog on this query, so a hint can
-// land the user in the form instead of on the home page.
-function siteLoginUrl(site) {
-  return `${site}/?login=1`;
-}
-
 async function translateViaSite(text, targetLang, sourceLang, tier) {
   // oiSiteBase：内部测试用的官网地址覆盖（正式发布不暴露 UI，storage 手工写入）
   const { oiSiteBase } = await storageGet(['oiSiteBase']);
@@ -177,11 +187,17 @@ async function translateViaSite(text, targetLang, sourceLang, tier) {
   let data = {};
   try { data = await resp.json(); } catch (_) { /* 非 JSON 走下面的状态码分支 */ }
 
+  // 401/402 带上 code 和官网地址：页面翻译据此在第一次被拒时停下整页（见
+  // content.js 的 haltForAccount），并给出登录 / 购买额度 / 改用 Google 的按钮
   if (resp.status === 401) {
-    throw new Error(T('errLoginRequired', [siteLoginUrl(site)]));
+    throw accountError(T('errLoginRequired'), 'login_required', site);
   }
   if (resp.status === 402) {
-    throw new Error(T('errOutOfCredits', [site]));
+    // 月度合理使用上限：买额度解决不了，用官网的原话
+    if (data.error && data.error.code === 'usage_cap_reached') {
+      throw accountError(data.error.message || T('errSiteStatus', ['402']), 'usage_cap', site);
+    }
+    throw accountError(T('errOutOfCredits'), 'out_of_credits', site);
   }
   if (resp.status === 404) {
     // 官网新版（带账号/额度）尚未切到正式域名时，接口整个不存在
@@ -191,6 +207,10 @@ async function translateViaSite(text, targetLang, sourceLang, tier) {
     throw new Error((data.error && data.error.message) || T('errSiteStatus', [String(resp.status)]));
   }
   return data.translatedText || '';
+}
+
+function accountError(message, code, site) {
+  return Object.assign(new Error(message), { code, site });
 }
 
 // 官网 API 收的是语言全名（"Simplified Chinese"），插件内部用的是语言码。
@@ -233,7 +253,18 @@ function freeOrder(startEngine) {
   return [...order.filter(e => !cooling(e)), ...order.filter(cooling)];
 }
 
+// 免费引擎没有上下文，短缩写会被猜成别的词（LLM→法学硕士）：送出前换成占位符
+//（规则见 sensitive-mask.js 的 keepAcronyms），译文回来换回。占位符被弄丢就
+// 按原文再问一次——缩写被意译好过缩写消失。
 async function translateFree(startEngine, text, targetLang, sourceLang) {
+  const kept = typeof YLSensitive !== 'undefined' ? YLSensitive.keepAcronyms(text) : { text, tokens: [] };
+  if (!kept.tokens.length) return translateFreeChain(startEngine, text, targetLang, sourceLang);
+  const out = await translateFreeChain(startEngine, kept.text, targetLang, sourceLang);
+  const restored = YLSensitive.restoreCounting(out, kept.tokens);
+  return restored.missing ? translateFreeChain(startEngine, text, targetLang, sourceLang) : restored.text;
+}
+
+async function translateFreeChain(startEngine, text, targetLang, sourceLang) {
   const errors = [];
   for (const name of freeOrder(startEngine)) {
     try {

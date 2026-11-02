@@ -108,11 +108,20 @@ let oiSiteUrl = 'https://openimmersive.ai';
 
 const AI_ENGINES = ['oi-standard', 'oi-premium'];
 
+// Signed in, the card offers Sign out instead of Log in, and the hint says
+// what the account is for rather than how to get one.
+function showSignedIn(signedIn) {
+  document.getElementById('btnOiLogin').style.display = signedIn ? 'none' : '';
+  document.getElementById('btnOiLogout').style.display = signedIn ? '' : 'none';
+  document.getElementById('oiAcctHint').textContent = t(signedIn ? 'optAccountHintSignedIn' : 'optAccountHint');
+}
+
 async function refreshOiAccount() {
   const el = document.getElementById('oiAcctStatus');
   const next = document.getElementById('oiAcctNext');
   el.textContent = t('optChecking');
   next.style.display = 'none';
+  showSignedIn(false);
   try {
     const resp = await api.runtime.sendMessage({ type: 'oiAuthStatus' });
     if (!resp || !resp.success) throw new Error(resp ? resp.error : t('commError'));
@@ -126,6 +135,7 @@ async function refreshOiAccount() {
       return;
     }
     const u = resp.user;
+    showSignedIn(true);
     el.textContent = t('optAcctSignedIn', u.email, u.plan || 'free', u.credits ?? 0);
     // The AI tiers sit folded under Advanced, so a balance shown here is a
     // dead end unless the switch to spending it is offered beside it.
@@ -141,6 +151,19 @@ document.getElementById('btnOiLogin').addEventListener('click', () => {
   window.open(`${oiSiteUrl}/?login=1`, '_blank');
 });
 document.getElementById('btnOiRefresh').addEventListener('click', refreshOiAccount);
+// Signs out on the website itself (the session cookie is the site's), then
+// re-reads the status so the card shows what the site now says.
+document.getElementById('btnOiLogout').addEventListener('click', async () => {
+  const el = document.getElementById('oiAcctStatus');
+  try {
+    const resp = await api.runtime.sendMessage({ type: 'oiLogout' });
+    if (!resp || !resp.success) throw new Error(resp ? resp.error : t('commError'));
+  } catch (err) {
+    el.textContent = t('optSignOutFailed', err.message);
+    return;
+  }
+  await refreshOiAccount();
+});
 document.getElementById('btnOiUseStandard').addEventListener('click', async () => {
   const btn = document.getElementById('btnOiUseStandard');
   document.getElementById('defEngine').value = 'oi-standard';
@@ -184,6 +207,7 @@ if (fileInput) {
     const result = await YLFile.translateFile({
       format,
       text,
+      targetLang,
       onProgress: (done, total) => { fileStatus.textContent = t('fileProgress', done, total); },
       translateFn: async (segment) => {
         const resp = await api.runtime.sendMessage({

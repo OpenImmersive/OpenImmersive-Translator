@@ -112,11 +112,25 @@
   "optSignIn": {
     "message": "Log in / Sign up"
   },
+  "optSignOut": {
+    "message": "Sign out"
+  },
+  "optAccountHintSignedIn": {
+    "message": "Standard and Premium spend this account's credits; the free Google tier needs no account. Sign out here or on the website. The extension never stores your password."
+  },
+  "optSignOutFailed": {
+    "message": "Could not sign out: $ERROR$",
+    "placeholders": {
+      "error": {
+        "content": "$1"
+      }
+    }
+  },
   "optRefresh": {
     "message": "Refresh status"
   },
   "optAccountHint": {
-    "message": "The AI tiers (Standard / Premium) draw on your account balance on the website; the free Google tier needs no account. Log in or out on the website, then press Refresh status — the extension never stores your password."
+    "message": "Standard and Premium spend credits from your OpenImmersive account; the free Google tier needs no account. The extension never stores your password."
   },
   "optCommon": {
     "message": "Everyday settings"
@@ -420,20 +434,22 @@
     "message": "communication error"
   },
   "errLoginRequired": {
-    "message": "Sign up free or log in at $SITE$ to use the AI tiers — the free Google tier needs no account",
-    "placeholders": {
-      "site": {
-        "content": "$1"
-      }
-    }
+    "message": "Log in or sign up free to use Standard and Premium. The free Google tier needs no account."
   },
   "errOutOfCredits": {
-    "message": "Out of credits — top up or subscribe at $SITE$",
-    "placeholders": {
-      "site": {
-        "content": "$1"
-      }
-    }
+    "message": "You're out of credits for Standard and Premium. Buy credits or subscribe to keep using them; the free Google tier needs none."
+  },
+  "acctLogIn": {
+    "message": "Log in"
+  },
+  "acctBuyCredits": {
+    "message": "Buy credits"
+  },
+  "acctUseGoogle": {
+    "message": "Use free Google"
+  },
+  "acctDismiss": {
+    "message": "Close"
   },
   "errAiSoon": {
     "message": "The AI tiers are not available in the extension yet — please use the free Google tier for now"
@@ -445,6 +461,9 @@
         "content": "$1"
       }
     }
+  },
+  "errTimeout": {
+    "message": "the engine did not answer within a minute"
   },
   "errUnknown": {
     "message": "engine returned no reason"
@@ -498,10 +517,13 @@
     "message": "· whole-PDF translation lives at"
   },
   "extDescShort": {
-    "message": "Open-source, privacy-first bilingual translation: whole page, selection, hover and text fields, 199 languages. No middle server."
+    "message": "Bilingual page translator: original and translation side by side. Free engines with no account, or your own DeepL or OpenAI key."
   },
   "uiLocale": {
     "message": "en",
     "description": "Which language this catalogue is written in; language names follow it."
+  },
+  "extStoreName": {
+    "message": "Bilingual Page Translator - Open Source | OpenImmersive"
   }
 }

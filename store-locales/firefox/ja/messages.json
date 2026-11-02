@@ -1,0 +1,8 @@
+{
+  "extStoreName": {
+    "message": "対訳ページ翻訳 - 無料オープンソース | OpenImmersive"
+  },
+  "extDescShort": {
+    "message": "原文の下に訳文を表示する対訳ページ翻訳の拡張機能。無料エンジンは登録不要で、DeepL、OpenAI、DeepSeek の自分の API キーも使えます。選択翻訳、ホバー翻訳、入力欄の翻訳に対応し、199 言語を翻訳できます。"
+  }
+}

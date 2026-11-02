@@ -1,0 +1,8 @@
+{
+  "extStoreName": {
+    "message": "双语对照网页翻译 - 免费开源 | OpenImmersive"
+  },
+  "extDescShort": {
+    "message": "双语对照网页翻译插件：译文显示在每段原文下方，保留页面排版。免费引擎无需注册，也可填自己的 DeepL、OpenAI、DeepSeek 密钥。支持划词、悬停和输入框翻译，199 种语言。"
+  }
+}

@@ -10,28 +10,31 @@
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, '微软雅黑', sans-serif;
       font-size: 14px;
-      color: #1c1917;
-      background: #fafaf9;
+      color: #192738;
+      background: #fbfcfe;
       min-height: 100vh;
     }
 
+    :focus-visible { outline: 3px solid #2869b7; outline-offset: 3px; }
+
     .page-header {
-      background: linear-gradient(135deg, #a83420, #c2402a);
-      color: #fff;
+      background: #f4f8fd;
+      border-bottom: 1px solid #e3e9f0;
+      color: #192738;
       padding: 20px 0;
     }
     .container { max-width: 680px; margin: 0 auto; padding: 0 20px; }
     .page-header .container { display: flex; align-items: center; gap: 12px; }
     .page-header img { width: 34px; height: 34px; border-radius: 7px; }
     .page-header h1 { font-size: 20px; font-weight: 700; }
-    .page-header p { font-size: 12px; opacity: 0.85; }
+    .page-header p { font-size: 12px; color: #607084; }
 
     .card {
-      background: #fff; border: 1px solid #e7e5e4; border-radius: 10px;
+      background: #fff; border: 1px solid #e3e9f0; border-radius: 14px;
       margin-top: 18px; overflow: hidden;
     }
     .card-header {
-      padding: 14px 20px; background: #f5f5f4; border-bottom: 1px solid #e7e5e4;
+      padding: 14px 20px; background: #f4f8fd; border-bottom: 1px solid #e3e9f0;
       font-weight: 600; font-size: 14px;
     }
     .card-body { padding: 20px; }
@@ -39,81 +42,83 @@
     .form-group { margin-bottom: 18px; }
     .form-group:last-child { margin-bottom: 0; }
 
-    label { display: block; font-size: 13px; font-weight: 500; margin-bottom: 6px; color: #374151; }
-    .label-hint { font-size: 11px; color: #78716c; font-weight: 400; margin-left: 6px; }
+    label { display: block; font-size: 13px; font-weight: 500; margin-bottom: 6px; color: #26384d; }
+    .label-hint { font-size: 11px; color: #607084; font-weight: 400; margin-left: 6px; }
 
     input[type="text"], input[type="password"], select {
-      width: 100%; padding: 8px 12px; border: 1px solid #d6d3d1; border-radius: 6px;
-      font-size: 13px; color: #1c1917; background: #fff; outline: none; transition: border-color 0.15s;
+      width: 100%; padding: 8px 12px; border: 1px solid #ccd6e2; border-radius: 8px;
+      font-size: 13px; color: #192738; background: #fff; outline: none; transition: border-color 0.15s;
     }
-    input:focus, select:focus { border-color: #c2402a; box-shadow: 0 0 0 3px rgba(194,64,42,0.12); }
+    input:focus, select:focus { border-color: #2869b7; outline: 3px solid #2869b7; outline-offset: 3px; }
 
     .input-group { display: flex; gap: 8px; }
     .input-group input { flex: 1; }
     .btn-show {
-      padding: 8px 12px; background: #f5f5f4; border: 1px solid #d6d3d1; border-radius: 6px;
-      cursor: pointer; font-size: 13px; color: #44403c; white-space: nowrap;
+      padding: 8px 12px; background: #fff; border: 1px solid #d7e0ea; border-radius: 8px;
+      cursor: pointer; font-size: 13px; color: #26384d; white-space: nowrap;
     }
-    .btn-show:hover { background: #e7e5e4; }
+    .btn-show:hover { background: #f4f8fd; }
 
-    .hint { margin-top: 6px; font-size: 11px; color: #78716c; line-height: 1.6; }
-    .hint a { color: #c2402a; text-decoration: none; }
-    .hint a:hover { text-decoration: underline; }
+    .hint { margin-top: 6px; font-size: 11px; color: #607084; line-height: 1.6; }
+    .hint a { color: #2869b7; text-decoration: none; }
+    .hint a:hover { color: #24599c; text-decoration: underline; }
 
     /* 开关行 */
     .toggle-row {
       display: flex; align-items: center; justify-content: space-between; gap: 12px;
-      padding: 10px 0; border-bottom: 1px solid #f5f5f4;
+      padding: 10px 0; border-bottom: 1px solid #f1f4f8;
     }
     .toggle-row:last-child { border-bottom: none; }
-    .toggle-row .t-label { font-size: 13px; font-weight: 500; color: #374151; }
-    .toggle-row .t-desc { font-size: 11px; color: #a8a29e; margin-top: 2px; }
+    .toggle-row .t-label { font-size: 13px; font-weight: 500; color: #26384d; }
+    .toggle-row .t-desc { font-size: 11px; color: #607084; margin-top: 2px; }
     .toggle-row .t-right { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
     .toggle-row select { width: auto; min-width: 96px; }
 
     .switch { position: relative; display: inline-block; width: 42px; height: 24px; flex-shrink: 0; }
     .switch input { opacity: 0; width: 0; height: 0; }
-    .slider { position: absolute; inset: 0; cursor: pointer; background: #d6d3d1; border-radius: 24px; transition: .18s; }
+    .slider { position: absolute; inset: 0; cursor: pointer; background: #ccd6e2; border-radius: 24px; transition: .18s; }
     .slider::before { content: ''; position: absolute; height: 18px; width: 18px; left: 3px; top: 3px; background: #fff; border-radius: 50%; transition: .18s; }
-    input:checked + .slider { background: #c2402a; }
+    input:checked + .slider { background: #2869b7; }
     input:checked + .slider::before { transform: translateX(18px); }
+    .switch input:focus-visible + .slider { outline: 3px solid #2869b7; outline-offset: 3px; }
 
     /* 高级折叠 */
     details.card > summary {
-      list-style: none; cursor: pointer; padding: 14px 20px; background: #f5f5f4;
+      list-style: none; cursor: pointer; padding: 14px 20px; background: #f4f8fd;
       font-weight: 600; font-size: 14px; display: flex; align-items: center; justify-content: space-between;
     }
     details.card > summary::-webkit-details-marker { display: none; }
-    details.card > summary::after { content: '▸'; color: #a8a29e; transition: transform .15s; }
+    details.card > summary::after { content: '▸'; color: #607084; transition: transform .15s; }
     details.card[open] > summary::after { transform: rotate(90deg); }
-    details.card > summary + * { border-top: 1px solid #e7e5e4; }
-    .sub-block { padding: 16px 0; border-bottom: 1px solid #f5f5f4; }
+    details.card > summary + * { border-top: 1px solid #e3e9f0; }
+    .sub-block { padding: 16px 0; border-bottom: 1px solid #f1f4f8; }
     .sub-block:last-child { border-bottom: none; padding-bottom: 0; }
     .sub-title { font-weight: 600; font-size: 13px; margin-bottom: 10px; }
 
     .save-bar {
-      position: sticky; bottom: 0; background: #fff; border-top: 1px solid #e7e5e4;
+      position: sticky; bottom: 0; background: #fff; border-top: 1px solid #e3e9f0;
       padding: 14px 0; margin-top: 20px;
     }
     .save-bar .container { display: flex; align-items: center; gap: 12px; }
     .btn-save {
-      padding: 9px 26px; background: #c2402a; color: #fff; border: none; border-radius: 6px;
+      padding: 9px 26px; background: #2869b7; color: #fff; border: none; border-radius: 8px;
       font-size: 14px; font-weight: 600; cursor: pointer; transition: background 0.15s;
     }
-    .btn-save:hover { background: #a83420; }
-    .save-msg { font-size: 13px; color: #16a34a; display: none; }
+    .btn-save:hover { background: #24599c; }
+    .btn-save:active { background: #1d4e89; }
+    .save-msg { font-size: 13px; color: #287a59; display: none; }
 
     .privacy-info {
-      background: #fcf2ef; border: 1px solid #efc0b4; border-radius: 8px;
-      padding: 12px 14px; font-size: 12px; color: #a83420; line-height: 1.6;
+      background: #f4f8fd; border: 1px solid #d3e3f7; border-radius: 8px;
+      padding: 12px 14px; font-size: 12px; color: #1d4e89; line-height: 1.6;
     }
     .privacy-info strong { display: block; margin-bottom: 4px; }
 
     .page-footer {
       max-width: 680px; margin: 16px auto 30px; padding: 0 20px;
-      font-size: 11px; color: #a8a29e; text-align: center;
+      font-size: 11px; color: #607084; text-align: center;
     }
-    .page-footer a { color: #c2402a; text-decoration: none; }
+    .page-footer a { color: #2869b7; text-decoration: none; }
   </style>
 </head>
 <body>
@@ -134,16 +139,17 @@
       <div class="card-header" data-i18n="optAccount">OpenImmersive account</div>
       <div class="card-body">
         <div class="form-group">
-          <div id="oiAcctStatus" class="hint" style="font-size:14px;color:#333" data-i18n="optChecking">Checking…</div>
+          <div id="oiAcctStatus" class="hint" style="font-size:14px;color:#192738" data-i18n="optChecking">Checking…</div>
           <div style="margin-top:10px;display:flex;gap:10px">
             <button type="button" id="btnOiLogin" class="btn-show" data-i18n="optSignIn">Log in / Sign up</button>
+            <button type="button" id="btnOiLogout" class="btn-show" style="display:none" data-i18n="optSignOut">Sign out</button>
             <button type="button" id="btnOiRefresh" class="btn-show" data-i18n="optRefresh">Refresh status</button>
           </div>
           <div id="oiAcctNext" style="display:none;margin-top:10px">
-            <div class="hint" style="margin-top:0;font-size:12px;color:#333" data-i18n="optAcctNextStep">Your balance is only spent by the AI tiers. The engine is still the free Google tier — switch to Standard to start using it.</div>
+            <div class="hint" style="margin-top:0;font-size:12px;color:#192738" data-i18n="optAcctNextStep">Your balance is only spent by the AI tiers. The engine is still the free Google tier — switch to Standard to start using it.</div>
             <button type="button" id="btnOiUseStandard" class="btn-show" style="margin-top:6px" data-i18n="optUseStandard">Switch to Standard</button>
           </div>
-          <p class="hint" data-i18n="optAccountHint">The AI tiers (Standard / Premium) draw on your account balance on the website; the free Google tier needs no account. Log in or out on the website, then press Refresh status — the extension never stores your password.</p>
+          <p class="hint" id="oiAcctHint" data-i18n="optAccountHint">Standard and Premium spend credits from your OpenImmersive account; the free Google tier needs no account. The extension never stores your password.</p>
         </div>
       </div>
     </div>
@@ -326,6 +332,7 @@
 
   <script src="i18n.js"></script>
   <script src="languages.js"></script>
+  <script src="sensitive-mask.js"></script>
   <script src="file-translate.js"></script>
   <script src="options.js"></script>
 </body>

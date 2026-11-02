@@ -1,0 +1,5 @@
+OpenImmersive 1.19.0, commit 95d6298.
+Requirements: Node.js 24 and zip on PATH. No npm dependencies needed.
+Run: node build-store.mjs
+Firefox output: dist-store/firefox and dist-store/openimmersive-firefox-v1.19.0.zip
+Runtime JS/HTML/CSS are copied unchanged; manifest is adapted for Firefox and locale overrides are merged. ZIP timestamps may differ; extracted file contents match the submitted package.
