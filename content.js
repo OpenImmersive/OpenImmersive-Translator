@@ -1189,7 +1189,7 @@
       return b;
     };
     const open = (url) => () => { window.open(url, '_blank', 'noopener'); };
-    if (h.code === 'login_required') row.append(button(T('acctLogIn'), true, open(`${h.site}/?login=1`)));
+    if (h.code === 'login_required') row.append(button(T('acctLogIn'), true, open(OILoginUrl(h.site))));
     if (h.code === 'out_of_credits') row.append(button(T('acctBuyCredits'), true, open(`${h.site}/#pricing`)));
     row.append(button(T('acctUseGoogle'), false, useFreeGoogle));
     const close = document.createElement('button');

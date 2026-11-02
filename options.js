@@ -148,7 +148,7 @@ async function refreshOiAccount() {
 
 // The site opens its sign-in / sign-up dialog on ?login=1.
 document.getElementById('btnOiLogin').addEventListener('click', () => {
-  window.open(`${oiSiteUrl}/?login=1`, '_blank');
+  window.open(OILoginUrl(oiSiteUrl), '_blank');
 });
 document.getElementById('btnOiRefresh').addEventListener('click', refreshOiAccount);
 // Signs out on the website itself (the session cookie is the site's), then

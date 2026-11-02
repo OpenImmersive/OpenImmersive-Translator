@@ -25,7 +25,7 @@ const STORE_DESCRIPTION =
 // Files that ship in the store package. Explicit allowlist — nothing else leaks in.
 const SHIP = [
   'background.js', 'sensitive-mask.js', 'content.js', 'content.css',
-  'file-translate.js', 'languages.js', 'i18n.js',
+  'file-translate.js', 'languages.js', 'i18n.js', 'login-url.js',
   'popup.html', 'popup.js', 'options.html', 'options.js',
   'welcome.html', 'welcome.js',
   'icons', 'LICENSE', 'PRIVACY.md',

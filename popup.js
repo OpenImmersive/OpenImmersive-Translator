@@ -176,7 +176,7 @@ function showAccountPrompt(resp) {
   const site = resp.site || OI_SITE;
   document.getElementById('btnAcctLogin').style.display = resp.code === 'login_required' ? '' : 'none';
   document.getElementById('btnAcctBuy').style.display = resp.code === 'out_of_credits' ? '' : 'none';
-  document.getElementById('btnAcctLogin').onclick = () => { api.tabs.create({ url: `${site}/?login=1` }); window.close(); };
+  document.getElementById('btnAcctLogin').onclick = () => { api.tabs.create({ url: OILoginUrl(site) }); window.close(); };
   document.getElementById('btnAcctBuy').onclick = () => { api.tabs.create({ url: `${site}/#pricing` }); window.close(); };
   acctActions.style.display = '';
   // Refused part-way (credits ran out mid-page), the blocks already done stay
