@@ -12,6 +12,7 @@ const swAutoLang = document.getElementById('swAutoLang');
 const autoLangName = document.getElementById('autoLangName');
 const statusDot = document.getElementById('statusDot');
 const statusText = document.getElementById('statusText');
+const acctActions = document.getElementById('acctActions');
 
 let currentTab = null;
 let currentHost = '';
@@ -164,8 +165,51 @@ document.getElementById('btnPdf').addEventListener('click', (e) => {
 
 // ===== UI 更新 =====
 
+// The site's AI tiers refused the page (signed out, out of credits): the page
+// stopped translating, and the status line carries the site's prompt itself —
+// no "Engine failed:" prefix — with the buttons that act on it.
+const ACCOUNT_CODES = ['login_required', 'out_of_credits', 'usage_cap', 'quota_exceeded'];
+const OI_SITE = 'https://openimmersive.ai';
+
+function showAccountPrompt(resp) {
+  setStatus('dot-off', resp.error);
+  const site = resp.site || OI_SITE;
+  document.getElementById('btnAcctLogin').style.display = resp.code === 'login_required' ? '' : 'none';
+  const buy = document.getElementById('btnAcctBuy');
+  buy.style.display = ['out_of_credits', 'quota_exceeded'].includes(resp.code) ? '' : 'none';
+  buy.textContent = t(resp.code === 'quota_exceeded' ? 'acctFastPlus' : 'acctBuyCredits');
+  document.getElementById('btnAcctLogin').onclick = () => { api.runtime.sendMessage({ type: 'oiLogin' }); window.close(); };
+  document.getElementById('btnAcctBuy').onclick = () => { api.tabs.create({ url: `${site}/#pricing` }); window.close(); };
+  acctActions.style.display = '';
+  // Refused part-way (credits ran out mid-page), the blocks already done stay
+  // and the main button still restores them.
+  const done = resp.count || resp.translatedCount || 0;
+  btnTranslate.textContent = t(done ? 'popupRestore' : 'popupTranslatePage');
+  btnTranslate.classList.toggle('active', !!done);
+}
+
+// Switch the engine to the free Google tier and translate the page again.
+document.getElementById('btnAcctGoogle').addEventListener('click', async () => {
+  engine = 'google';
+  await setStorage({ engine });
+  acctActions.style.display = 'none';
+  if (!currentTab) return;
+  setStatus('dot-loading', t('popupTranslating'));
+  try {
+    await api.tabs.sendMessage(currentTab.id, { type: 'removeTranslations' });
+    updateUI(await api.tabs.sendMessage(currentTab.id, { type: 'translatePage', targetLang: selLang.value, engine }));
+  } catch (err) {
+    setStatus('dot-off', t('popupTranslateFailed') + err.message);
+  }
+});
+
 function updateUI(resp) {
+  acctActions.style.display = 'none';
   if (!resp) { setStatus('dot-off', t('popupNoConnection')); return; }
+  if (ACCOUNT_CODES.includes(resp.code) && !resp.isTranslating) {
+    showAccountPrompt(resp);
+    return;
+  }
 
   if (resp.isTranslating) {
     setStatus('dot-loading', t('popupProgress', resp.translatedCount || 0, resp.totalCount || 0));

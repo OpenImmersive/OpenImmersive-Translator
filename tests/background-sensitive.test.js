@@ -100,7 +100,49 @@ describe('translate + sensitiveMask', () => {
       });
     };
     const ctx = loadBg({ fetchImpl, storageData: { sensitiveMask: true } });
-    const out = await ctx.translate({ text: 'Email ME at Admin@Example-Corp.com', engine: 'google', targetLang: 'zh-CN' });
-    expect(out).toContain('Admin@Example-Corp.com'); // 原值大小写不受引擎影响
+    const out = await ctx.translate({ text: 'Email ME at Admin@Deciqai.com', engine: 'google', targetLang: 'zh-CN' });
+    expect(out).toContain('Admin@Deciqai.com'); // 原值大小写不受引擎影响
+  });
+});
+
+// 免费引擎上下文少，短缩写会被猜成别的词（LLM→法学硕士）；AI 引擎看得懂，不保护
+describe('acronyms on the free engines', () => {
+  test('a standalone acronym goes to Google as a placeholder and comes back as written', async () => {
+    const seen = [];
+    const ctx = loadBg({ fetchImpl: gtxEcho(seen) });
+    const out = await ctx.translate({ text: 'An LLM runs on a GPU.', engine: 'google', targetLang: 'zh-CN' });
+    expect(seen).toEqual(['An __PII_ACRO_1__ runs on a __PII_ACRO_2__.']);
+    expect(out).toBe('An LLM runs on a GPU.');
+  });
+
+  test('a block that is only an acronym goes out as is', async () => {
+    const seen = [];
+    const ctx = loadBg({ fetchImpl: gtxEcho(seen) });
+    await ctx.translate({ text: 'LLM', engine: 'google', targetLang: 'zh-CN' });
+    expect(seen).toEqual(['LLM']);
+  });
+
+  test('a lost placeholder asks again with the plain text', async () => {
+    const seen = [];
+    const fetchImpl = (url) => {
+      const q = new URL(url).searchParams.get('q');
+      seen.push(q);
+      const tr = q.includes('__PII_') ? '一个模型' : '一个 LLM 模型';
+      return Promise.resolve({ ok: true, status: 200, json: () => Promise.resolve([[[tr, q]]]), text: () => Promise.resolve('') });
+    };
+    const ctx = loadBg({ fetchImpl });
+    expect(await ctx.translate({ text: 'An LLM model', engine: 'google', targetLang: 'zh-CN' })).toBe('一个 LLM 模型');
+    expect(seen).toEqual(['An __PII_ACRO_1__ model', 'An LLM model']);
+  });
+
+  test('AI engines get the acronym as written', async () => {
+    const bodies = [];
+    const fetchImpl = (url, opts) => {
+      bodies.push(JSON.parse(opts.body));
+      return Promise.resolve({ ok: true, status: 200, json: () => Promise.resolve({ choices: [{ message: { content: '译文' } }] }) });
+    };
+    const ctx = loadBg({ fetchImpl, storageData: { apiKeys: { openai: 'k' } } });
+    await ctx.translate({ text: 'An LLM runs on a GPU.', engine: 'openai', targetLang: 'zh-CN' });
+    expect(bodies[0].messages[1].content).toBe('An LLM runs on a GPU.');
   });
 });

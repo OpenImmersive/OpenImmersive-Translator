@@ -1,0 +1,18 @@
+1
+00:00:01,000 --> 00:00:04,000
+Welcome back to the channel.
+
+2
+00:00:04,500 --> 00:00:08,000
+Today we will talk about how
+machine translation works.
+
+3
+00:00:08,500 --> 00:00:11,000
+- Are you ready?
+- Absolutely.
+
+4
+00:00:11,500 --> 00:00:15,000
+<i>The first systems were built
+in the nineteen fifties.</i>

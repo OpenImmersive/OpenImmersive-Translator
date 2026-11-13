@@ -1,0 +1,19 @@
+{
+  "extStoreName": {
+    "message": "Extensão para traduzir sites - bilíngue, código aberto | OpenImmersive"
+  },
+  "extDescShort": {
+    "message": "Extensão para traduzir sites em modo bilíngue: original e tradução lado a lado. Motores grátis sem cadastro ou sua chave de API."
+  },
+  "errFastQuota": {"message": "O limite do Fast deste mês acabou. Tente novamente no mês que vem."},
+  "acctFastPlus": {"message": "Ver Plus · 10 milhões de caracteres Fast por mês"},
+  "errOutOfCredits": {
+    "message": "Você não tem créditos suficientes para usar o Standard ou o Premium. Compre créditos ou assine para continuar, ou use o mecanismo gratuito do Google."
+  },
+  "acctBuyCredits": {
+    "message": "Comprar créditos"
+  },
+  "acctUseGoogle": {
+    "message": "Usar o Google grátis"
+  }
+}

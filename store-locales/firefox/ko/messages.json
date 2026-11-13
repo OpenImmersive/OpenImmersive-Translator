@@ -1,0 +1,8 @@
+{
+  "extStoreName": {
+    "message": "번역 확장 프로그램 - 이중 언어 | OpenImmersive"
+  },
+  "extDescShort": {
+    "message": "원문 아래에 번역문을 보여 주는 이중 언어 번역 확장 프로그램입니다. 무료 엔진은 가입이 필요 없고, DeepL, OpenAI, DeepSeek API 키를 직접 넣을 수 있습니다. 199개 언어를 지원합니다."
+  }
+}

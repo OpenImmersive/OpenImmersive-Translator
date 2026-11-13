@@ -1,0 +1,19 @@
+{
+  "extStoreName": {
+    "message": "Extensión para traducir páginas - bilingüe, gratis | OpenImmersive"
+  },
+  "extDescShort": {
+    "message": "Extensión para traducir páginas web en modo bilingüe: original y traducción lado a lado. Motores gratis sin cuenta o tu clave API."
+  },
+  "errFastQuota": {"message": "Se agotó el límite de Fast de este mes. Inténtalo el mes que viene."},
+  "acctFastPlus": {"message": "Ver Plus · 10 millones de caracteres Fast al mes"},
+  "errOutOfCredits": {
+    "message": "No tienes créditos suficientes para Standard o Premium. Compra créditos o suscríbete para continuar, o usa el motor gratuito de Google."
+  },
+  "acctBuyCredits": {
+    "message": "Comprar créditos"
+  },
+  "acctUseGoogle": {
+    "message": "Usar Google gratis"
+  }
+}

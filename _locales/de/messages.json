@@ -1,0 +1,19 @@
+{
+  "extStoreName": {
+    "message": "Übersetzer-Erweiterung - Webseite zweisprachig, kostenlos | OpenImmersive"
+  },
+  "extDescShort": {
+    "message": "Übersetzer-Erweiterung zum zweisprachigen Lesen: Original und Übersetzung untereinander. Gratis ohne Konto oder mit eigenem API-Key."
+  },
+  "errFastQuota": {"message": "Das monatliche Fast-Limit ist erreicht. Versuche es nächsten Monat erneut."},
+  "acctFastPlus": {"message": "Plus ansehen · 10 Millionen Fast-Zeichen pro Monat"},
+  "errOutOfCredits": {
+    "message": "Dein Guthaben reicht für Standard oder Premium nicht aus. Kaufe Credits oder schließe ein Abo ab, um weiterzumachen. Alternativ kannst du Google kostenlos nutzen."
+  },
+  "acctBuyCredits": {
+    "message": "Credits kaufen"
+  },
+  "acctUseGoogle": {
+    "message": "Google kostenlos nutzen"
+  }
+}

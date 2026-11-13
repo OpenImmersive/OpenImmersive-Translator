@@ -1,0 +1,8 @@
+{
+  "extStoreName": {
+    "message": "翻譯擴充功能 - 雙語對照，免費開源 | OpenImmersive"
+  },
+  "extDescShort": {
+    "message": "免費開源的翻譯擴充功能：譯文顯示在每段原文下方，雙語對照，保留頁面版面。免費引擎不用註冊，也可填自己的 DeepL、OpenAI、DeepSeek 金鑰。支援選取、懸停和輸入框翻譯，199 種語言。"
+  }
+}

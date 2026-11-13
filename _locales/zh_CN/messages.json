@@ -112,11 +112,25 @@
   "optSignIn": {
     "message": "登录 / 注册"
   },
+  "optSignOut": {
+    "message": "退出登录"
+  },
+  "optAccountHintSignedIn": {
+    "message": "Standard 和 Premium 使用这个账号的积分；免费 Google 档无需账号。可以在这里或官网退出登录。插件本身不保存你的密码。"
+  },
+  "optSignOutFailed": {
+    "message": "退出登录失败：$ERROR$",
+    "placeholders": {
+      "error": {
+        "content": "$1"
+      }
+    }
+  },
   "optRefresh": {
     "message": "刷新状态"
   },
   "optAccountHint": {
-    "message": "AI 翻译档（Standard / Premium）使用官网账号的额度；免费 Google 档无需账号。在官网登录或登出后点「刷新状态」即可生效——插件本身不保存你的密码。"
+    "message": "Standard 和 Premium 使用 OpenImmersive 账号的积分；免费 Google 档无需账号。插件本身不保存你的密码。"
   },
   "optCommon": {
     "message": "常用设置"
@@ -194,7 +208,7 @@
     "message": "LibreTranslate（开源，需实例地址）"
   },
   "optEngineAiGroup": {
-    "message": "AI 档（用官网账号额度，无需自备 Key）"
+    "message": "AI 档（用官网账号积分，无需自备 Key）"
   },
   "optEngineStandard": {
     "message": "Standard — 上下文更自然的 AI 翻译"
@@ -212,7 +226,7 @@
     "message": "DeepSeek（AI 翻译，成本极低）"
   },
   "optEngineHint": {
-    "message": "默认用免费的 Google，够日常使用；被限流时会自动改用 Microsoft 兜底。<strong>AI 档</strong>用 <a href=\"https://openimmersive.ai\" target=\"_blank\" rel=\"noopener\">官网账号</a>的 credits，在浏览器里登录官网即可生效（插件不保存任何登录凭据）；也可以自备 API Key 走下面的引擎。"
+    "message": "默认用免费的 Google，够日常使用；被限流时会自动改用 Microsoft 兜底。<strong>AI 档</strong>用 <a href=\"https://openimmersive.ai\" target=\"_blank\" rel=\"noopener\">官网账号</a>的积分，在浏览器里登录官网即可生效（插件不保存任何登录凭据）；也可以自备 API Key 走下面的引擎。"
   },
   "optDeepLKey": {
     "message": "DeepL API Key"
@@ -242,7 +256,7 @@
     "message": "（留空用公共实例）"
   },
   "optLibreHint": {
-    "message": "开源、可自托管，隐私最高。见 <a href=\"https://github.com/LibreTranslate/LibreTranslate\" target=\"_blank\" rel=\"noopener\">LibreTranslate</a>。"
+    "message": "libretranslate.com 需要 API Key。自托管实例允许匿名请求时，Key 可以留空。"
   },
   "optMask": {
     "message": "敏感信息脱敏（Beta）"
@@ -301,10 +315,10 @@
     "message": "AI 翻译档即将上线，敬请期待（免费 Google 档不受影响）"
   },
   "optAcctSignedOut": {
-    "message": "未登录 —— 注册免费，并赠送可用于 AI 翻译档的初始额度。点「登录 / 注册」在官网完成后回来刷新"
+    "message": "未登录 —— 注册免费，并赠送可用于 AI 翻译档的初始积分。点「登录 / 注册」在官网完成后回来刷新"
   },
   "optAcctSignedIn": {
-    "message": "已登录：$EMAIL$ · 套餐 $PLAN$ · 余额 $CREDITS$ credits",
+    "message": "已登录：$EMAIL$ · 套餐 $PLAN$ · 余额 $CREDITS$ 积分",
     "placeholders": {
       "email": {
         "content": "$1"
@@ -420,20 +434,22 @@
     "message": "通信错误"
   },
   "errLoginRequired": {
-    "message": "在 $SITE$ 免费注册或登录后才能使用 AI 翻译档（免费的 Google 档无需账号）",
-    "placeholders": {
-      "site": {
-        "content": "$1"
-      }
-    }
+    "message": "登录或免费注册后即可使用 Standard 和 Premium。免费的 Google 档无需账号。"
   },
   "errOutOfCredits": {
-    "message": "额度不足，请到 $SITE$ 充值或订阅",
-    "placeholders": {
-      "site": {
-        "content": "$1"
-      }
-    }
+    "message": "Standard 和 Premium 的积分已用完。购买积分或订阅后可继续使用；免费的 Google 档不需要积分。"
+  },
+  "acctLogIn": {
+    "message": "登录"
+  },
+  "acctBuyCredits": {
+    "message": "购买积分"
+  },
+  "acctUseGoogle": {
+    "message": "改用免费 Google"
+  },
+  "acctDismiss": {
+    "message": "关闭"
   },
   "errAiSoon": {
     "message": "AI 翻译档即将上线，暂请使用免费的 Google 档"
@@ -445,6 +461,9 @@
         "content": "$1"
       }
     }
+  },
+  "errTimeout": {
+    "message": "引擎一分钟内没有回应"
   },
   "errUnknown": {
     "message": "引擎未给出原因"
@@ -498,10 +517,15 @@
     "message": "· 整份 PDF 翻译在"
   },
   "extDescShort": {
-    "message": "开源、隐私优先的双语翻译插件：整页双语对照、划词/悬停/输入框翻译、199 种语言。翻译请求直连所选引擎，无中间服务器、零数据收集。"
+    "message": "免费开源的翻译插件：译文显示在每段原文下方，双语对照，保留页面排版。免费引擎无需注册，也可填自己的 DeepL、OpenAI、DeepSeek 密钥。支持划词、悬停和输入框翻译，199 种语言。"
   },
   "uiLocale": {
     "message": "zh",
     "description": "Which language this catalogue is written in; language names follow it."
-  }
+  },
+  "extStoreName": {
+    "message": "翻译插件 - 双语对照网页翻译，免费开源 | OpenImmersive"
+  },
+  "errFastQuota": {"message": "本月 Fast 额度已用完，请下个月再试。"},
+  "acctFastPlus": {"message": "查看 Plus · 每月 1,000 万 Fast 字符"}
 }

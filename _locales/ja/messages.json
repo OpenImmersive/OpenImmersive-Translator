@@ -1,0 +1,19 @@
+{
+  "extStoreName": {
+    "message": "翻訳拡張機能 - 対訳ページ翻訳・無料オープンソース | OpenImmersive"
+  },
+  "extDescShort": {
+    "message": "原文の下に訳文を表示する対訳の翻訳拡張機能。無料エンジンは登録不要。DeepL、OpenAI、DeepSeek の自分の API キーも使えます。選択翻訳、ホバー翻訳、入力欄の翻訳に対応し、199 言語を翻訳できます。"
+  },
+  "errFastQuota": {"message": "今月のFastの上限に達しました。来月もう一度お試しください。"},
+  "acctFastPlus": {"message": "Plusを見る · Fastは月1,000万文字"},
+  "errOutOfCredits": {
+    "message": "Standard または Premium の利用に必要なクレジットが不足しています。続けるにはクレジットを購入するか、プランに登録してください。無料の Google 翻訳も利用できます。"
+  },
+  "acctBuyCredits": {
+    "message": "クレジットを購入"
+  },
+  "acctUseGoogle": {
+    "message": "無料の Google 翻訳を使う"
+  }
+}

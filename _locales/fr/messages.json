@@ -1,0 +1,19 @@
+{
+  "extStoreName": {
+    "message": "Extension de traduction - page web bilingue, open source | OpenImmersive"
+  },
+  "extDescShort": {
+    "message": "Extension de traduction pour lire en bilingue : original et traduction côte à côte. Moteurs gratuits sans compte ou votre clé API."
+  },
+  "errFastQuota": {"message": "Le quota Fast de ce mois est épuisé. Réessayez le mois prochain."},
+  "acctFastPlus": {"message": "Voir Plus · 10 millions de caractères Fast par mois"},
+  "errOutOfCredits": {
+    "message": "Vous n’avez pas assez de crédits pour Standard ou Premium. Achetez des crédits ou abonnez-vous pour continuer, ou utilisez le moteur Google gratuit."
+  },
+  "acctBuyCredits": {
+    "message": "Acheter des crédits"
+  },
+  "acctUseGoogle": {
+    "message": "Utiliser Google gratuitement"
+  }
+}

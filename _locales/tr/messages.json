@@ -1,0 +1,19 @@
+{
+  "extStoreName": {
+    "message": "Çeviri eklentisi - iki dilli sayfa çevirisi, açık kaynak | OpenImmersive"
+  },
+  "extDescShort": {
+    "message": "İki dilli okuma için çeviri eklentisi: özgün metin ve çevirisi alt alta. Hesapsız ücretsiz motorlar ya da kendi API anahtarınız."
+  },
+  "errFastQuota": {"message": "Bu ayın Fast kotası doldu. Gelecek ay tekrar deneyin."},
+  "acctFastPlus": {"message": "Plus'ı inceleyin · Ayda 10 milyon Fast karakteri"},
+  "errOutOfCredits": {
+    "message": "Standard veya Premium için yeterli krediniz yok. Devam etmek için kredi satın alın ya da abone olun. Ücretsiz Google Çeviri’yi de kullanabilirsiniz."
+  },
+  "acctBuyCredits": {
+    "message": "Kredi satın al"
+  },
+  "acctUseGoogle": {
+    "message": "Ücretsiz Google Çeviri’yi kullan"
+  }
+}

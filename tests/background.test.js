@@ -3,6 +3,7 @@
 const vm = require('vm');
 const fs = require('fs');
 const path = require('path');
+const { i18n } = require('./i18n-stub');
 
 const SRC = fs.readFileSync(path.join(__dirname, '..', 'background.js'), 'utf8');
 const LANGS_SRC = fs.readFileSync(path.join(__dirname, '..', 'languages.js'), 'utf8');
@@ -34,7 +35,7 @@ function loadBg({ fetchImpl, storageData = {} } = {}) {
         sendMessage: () => Promise.resolve()
       },
       commands: { onCommand: { addListener: fn => { listeners.command = fn; } } },
-      i18n: require('./i18n-mock')
+      i18n
     },
     fetch: fetchImpl ?? (() => Promise.reject(new Error('fetch not configured'))),
     URL: global.URL,
@@ -253,12 +254,12 @@ describe('translateMyMemory', () => {
 describe('translateDeepL', () => {
   test('throws if apiKey is empty string', async () => {
     const ctx = loadBg();
-    await expect(ctx.translateDeepL('test', 'zh-CN', 'en', '')).rejects.toThrow('DeepL API Key');
+    await expect(ctx.translateDeepL('test', 'zh-CN', 'en', '')).rejects.toThrow('DeepL API key');
   });
 
   test('throws if apiKey is undefined', async () => {
     const ctx = loadBg();
-    await expect(ctx.translateDeepL('test', 'zh-CN', 'en', undefined)).rejects.toThrow('DeepL API Key');
+    await expect(ctx.translateDeepL('test', 'zh-CN', 'en', undefined)).rejects.toThrow('DeepL API key');
   });
 
   test('returns translated text on success', async () => {
@@ -299,7 +300,7 @@ describe('translateDeepL', () => {
 describe('translateOpenAI', () => {
   test('throws if no API key', async () => {
     const ctx = loadBg();
-    await expect(ctx.translateOpenAI('test', 'zh-CN', 'en', '')).rejects.toThrow('OpenAI API Key');
+    await expect(ctx.translateOpenAI('test', 'zh-CN', 'en', '')).rejects.toThrow('OpenAI API key');
   });
 
   test('sends request to openai.com endpoint', async () => {
@@ -319,7 +320,7 @@ describe('translateOpenAI', () => {
 describe('translateDeepSeek', () => {
   test('throws if no API key', async () => {
     const ctx = loadBg();
-    await expect(ctx.translateDeepSeek('test', 'zh-CN', 'en', '')).rejects.toThrow('DeepSeek API Key');
+    await expect(ctx.translateDeepSeek('test', 'zh-CN', 'en', '')).rejects.toThrow('DeepSeek API key');
   });
 
   test('sends request to deepseek.com endpoint', async () => {
@@ -404,6 +405,16 @@ describe('translateLibre', () => {
     const ctx = loadBg({ fetchImpl: fetch });
     await ctx.translateLibre('test', 'zh', 'en', 'https://my-libre.example.com');
     expect(calledUrl).toContain('my-libre.example.com');
+  });
+
+  test('sends a configured key only to the selected instance', async () => {
+    const fetch = jest.fn(ok({ translatedText: 'Hola' }));
+    const ctx = loadBg({ fetchImpl: fetch });
+    await ctx.translateLibre('Hello', 'es', 'en', 'https://my-libre.example.com/', 'test-key');
+    expect(fetch).toHaveBeenCalledTimes(1);
+    const [url, options] = fetch.mock.calls[0];
+    expect(url).toBe('https://my-libre.example.com/translate');
+    expect(JSON.parse(options.body).api_key).toBe('test-key');
   });
 
   test('throws on HTTP error', async () => {
@@ -500,7 +511,7 @@ describe('site AI tiers (oi-standard / oi-premium)', () => {
       fetchImpl: () => Promise.resolve({ ok: false, status: 401, json: () => Promise.resolve({}) }),
     });
     await expect(ctx.translate({ text: 'Hi', engine: 'oi-standard', targetLang: 'zh-CN' }))
-      .rejects.toThrow(/登录/);
+      .rejects.toThrow('Log in or sign up free to use Standard and Premium. The free Google tier needs no account.');
   });
 
   test('402 from the site becomes a top-up hint', async () => {
@@ -508,7 +519,40 @@ describe('site AI tiers (oi-standard / oi-premium)', () => {
       fetchImpl: () => Promise.resolve({ ok: false, status: 402, json: () => Promise.resolve({}) }),
     });
     await expect(ctx.translate({ text: 'Hi', engine: 'oi-standard', targetLang: 'zh-CN' }))
-      .rejects.toThrow(/额度不足/);
+      .rejects.toThrow(/out of credits for Standard and Premium. Buy credits or subscribe/);
+  });
+
+  // The page stops on the first refusal only if it can tell an account refusal
+  // from a flaky engine, so the message response carries a code.
+  const ask = (ctx) => new Promise((resolve) => ctx.__listeners.message(
+    { type: 'translate', text: 'Hi', engine: 'oi-standard', targetLang: 'zh-CN' }, {}, resolve));
+  const status = (code, json = {}) => () => Promise.resolve({ ok: false, status: code, json: () => Promise.resolve(json) });
+
+  test.each([
+    [401, {}, 'login_required'],
+    [402, { error: { code: 'quota_exceeded' } }, 'quota_exceeded'],
+    [402, { error: { code: 'insufficient_credits', message: 'needs 1 credit' } }, 'out_of_credits'],
+    [402, { error: { code: 'usage_cap_reached', message: "You've hit this month's fair-use ceiling." } }, 'usage_cap'],
+  ])('%i (%j) answers the page with code %s', async (code, json, want) => {
+    const resp = await ask(loadBg({ fetchImpl: status(code, json) }));
+    expect(resp.success).toBe(false);
+    expect(resp.code).toBe(want);
+  });
+
+  test('the refusal names the site, so the page can link to its login and pricing', async () => {
+    const resp = await ask(loadBg({ fetchImpl: status(401), storageData: { oiSiteBase: 'http://preview.test:8091' } }));
+    expect(resp.site).toBe('http://preview.test:8091');
+  });
+
+  test('the fair-use ceiling keeps the site\'s own words', async () => {
+    const resp = await ask(loadBg({ fetchImpl: status(402, { error: { code: 'usage_cap_reached', message: "You've hit this month's fair-use ceiling." } }) }));
+    expect(resp.error).toBe("You've hit this month's fair-use ceiling.");
+  });
+
+  test('other failures carry no account code', async () => {
+    const resp = await ask(loadBg({ fetchImpl: status(500) }));
+    expect(resp.success).toBe(false);
+    expect(resp.code).toBeUndefined();
   });
 });
 
@@ -559,6 +603,27 @@ describe('oiAuthStatus', () => {
     expect(calledUrl).toContain('http://preview.test:8091/api/auth/me');
     expect(r.available).toBe(true);
     expect(r.user).toBeNull(); // 未登录
+  });
+});
+
+// ─── oiLogout（设置页「退出登录」）───────────────────────────────────────────
+
+describe('oiLogout', () => {
+  test('POSTs to the site logout route with the session cookie', async () => {
+    let seen = null;
+    const ctx = loadBg({ fetchImpl: (url, init) => { seen = { url: String(url), init }; return Promise.resolve({ ok: true, status: 200, json: () => Promise.resolve({ ok: true }) }); } });
+    const resp = await new Promise((resolve) => ctx.__listeners.message({ type: 'oiLogout' }, {}, resolve));
+    expect(resp).toEqual({ success: true });
+    expect(seen.url).toBe('https://openimmersive.ai/api/auth/logout');
+    expect(seen.init.method).toBe('POST');
+    expect(seen.init.credentials).toBe('include');
+  });
+
+  test('a non-OK answer is a failure with the status', async () => {
+    const ctx = loadBg({ fetchImpl: () => Promise.resolve({ ok: false, status: 500 }) });
+    const resp = await new Promise((resolve) => ctx.__listeners.message({ type: 'oiLogout' }, {}, resolve));
+    expect(resp.success).toBe(false);
+    expect(resp.error).toContain('500');
   });
 });
 
@@ -822,5 +887,33 @@ describe('msChunk / long-paragraph handling', () => {
         : Promise.resolve({ ok: true, status: 200, json: () => Promise.resolve({ statusCode: 400, errorMessage: '' }) })
     });
     await expect(ctx2.translateMicrosoft('Hello', 'zh-CN')).rejects.toThrow('Microsoft: statusCode 400');
+  });
+});
+
+
+describe('OPENI-060 localized login', () => {
+  test.each([
+    ['zh-CN', '/zh'], ['zh_SG', '/zh'], ['zh-TW', '/zh-tw'],
+    ['zh-Hant', '/zh-tw'], ['zh-HK', '/zh-tw'], ['ja-JP', '/ja'],
+    ['ko-KR', '/ko'], ['es-MX', '/es'], ['pt-BR', '/pt'], ['pt-PT', '/pt'],
+    ['en-US', '/'], ['fr-FR', '/'], ['', '/'],
+  ])('%s routes to %s', (locale, route) => {
+    expect(loadBg().siteLoginPath(locale)).toBe(route);
+  });
+  test('login message uses browser locale and configured site, including trailing slash', async () => {
+    const ctx = loadBg({ storageData: { oiSiteBase: 'https://test.example/' } });
+    ctx.browser.i18n = { ...ctx.browser.i18n, getUILanguage: () => 'ja-JP' };
+    ctx.browser.tabs.create = jest.fn().mockResolvedValue({});
+    const response = await new Promise(resolve => {
+      expect(ctx.__listeners.message({ type: 'oiLogin' }, {}, resolve)).toBe(true);
+    });
+    expect(response).toEqual({ success: true });
+    expect(ctx.browser.tabs.create).toHaveBeenCalledWith({ url: 'https://test.example/ja?login=1' });
+  });
+  test('missing language API defaults to English', async () => {
+    const ctx = loadBg();
+    ctx.browser.tabs.create = jest.fn().mockResolvedValue({});
+    await ctx.openSiteLogin();
+    expect(ctx.browser.tabs.create).toHaveBeenCalledWith({ url: 'https://openimmersive.ai/?login=1' });
   });
 });

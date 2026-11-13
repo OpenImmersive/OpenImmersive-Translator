@@ -1,0 +1,19 @@
+{
+  "extStoreName": {
+    "message": "إضافة ترجمة - ترجمة صفحات الويب ثنائية اللغة، مجانية | OpenImmersive"
+  },
+  "extDescShort": {
+    "message": "إضافة ترجمة للقراءة بلغتين: النص الأصلي وترجمته أسفل كل فقرة. محركات مجانية بدون حساب، أو مفتاح API الخاص بك."
+  },
+  "errFastQuota": {"message": "نفد حد Fast لهذا الشهر. جرّب مجددًا الشهر المقبل."},
+  "acctFastPlus": {"message": "عرض Plus · 10 ملايين حرف Fast شهريًا"},
+  "errOutOfCredits": {
+    "message": "رصيدك غير كافٍ لاستخدام Standard أو Premium. اشترِ رصيدًا أو اشترك للمتابعة، أو استخدم محرّك Google المجاني."
+  },
+  "acctBuyCredits": {
+    "message": "شراء رصيد"
+  },
+  "acctUseGoogle": {
+    "message": "استخدام Google مجانًا"
+  }
+}

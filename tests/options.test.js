@@ -15,7 +15,7 @@ async function loadOptions({ stored = {}, auth } = {}) {
   const storage = { ...stored };
   global.chrome = {
     i18n: require('./i18n-stub').i18n,
-    runtime: { sendMessage: jest.fn(async () => auth) },
+    runtime: { sendMessage: jest.fn(async (m) => (typeof auth === 'function' ? auth(m) : auth)) },
     storage: {
       local: {
         get: (keys, cb) => cb(Object.fromEntries(keys.filter(k => k in storage).map(k => [k, storage[k]]))),
@@ -63,6 +63,55 @@ describe('options account card', () => {
     expect(document.getElementById('oiAcctNext').style.display).toBe('none');
     expect(document.getElementById('oiAcctStatus').textContent).toContain('free');
     document.getElementById('btnOiLogin').click();
-    expect(window.open).toHaveBeenCalledWith('https://openimmersive.ai/?login=1', '_blank');
+    expect(chrome.runtime.sendMessage).toHaveBeenCalledWith({ type: 'oiLogin' });
+  });
+});
+
+describe('options account card: signed-in and signed-out states', () => {
+  const shown = (id) => document.getElementById(id).style.display !== 'none';
+
+  test('signed in: shows the email and Sign out, not Log in / Sign up', async () => {
+    await loadOptions({ auth: signedIn });
+    expect(document.getElementById('oiAcctStatus').textContent).toContain('a@b.c');
+    expect(shown('btnOiLogin')).toBe(false);
+    expect(shown('btnOiLogout')).toBe(true);
+    expect(document.getElementById('btnOiLogout').textContent).toBe('Sign out');
+    expect(document.getElementById('oiAcctHint').textContent).toMatch(/Sign out here or on the website/);
+  });
+
+  test('signed out: Log in / Sign up, no Sign out, and the hint for getting an account', async () => {
+    await loadOptions({ auth: { success: true, available: true, user: null } });
+    expect(shown('btnOiLogin')).toBe(true);
+    expect(shown('btnOiLogout')).toBe(false);
+    expect(document.getElementById('oiAcctHint').textContent).not.toMatch(/Sign out/);
+  });
+
+  test('Sign out logs out on the site, then refreshes into the signed-out state', async () => {
+    let user = signedIn.user;
+    const calls = [];
+    await loadOptions({
+      auth: (m) => {
+        calls.push(m.type);
+        if (m.type === 'oiLogout') { user = null; return { success: true }; }
+        return { success: true, available: true, user };
+      },
+    });
+    document.getElementById('btnOiLogout').click();
+    await new Promise(r => setTimeout(r, 0));
+    await new Promise(r => setTimeout(r, 0));
+    expect(calls).toEqual(['oiAuthStatus', 'oiLogout', 'oiAuthStatus']);
+    expect(document.getElementById('oiAcctStatus').textContent).not.toContain('a@b.c');
+    expect(shown('btnOiLogin')).toBe(true);
+    expect(shown('btnOiLogout')).toBe(false);
+  });
+
+  test('a failed sign-out says so and keeps the signed-in controls', async () => {
+    await loadOptions({
+      auth: (m) => (m.type === 'oiLogout' ? { success: false, error: 'The website API answered 500' } : signedIn),
+    });
+    document.getElementById('btnOiLogout').click();
+    await new Promise(r => setTimeout(r, 0));
+    expect(document.getElementById('oiAcctStatus').textContent).toBe('Could not sign out: The website API answered 500');
+    expect(shown('btnOiLogout')).toBe(true);
   });
 });

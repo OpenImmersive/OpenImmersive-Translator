@@ -1,0 +1,19 @@
+{
+  "extStoreName": {
+    "message": "翻譯擴充功能 - 雙語對照網頁翻譯，免費開源 | OpenImmersive"
+  },
+  "extDescShort": {
+    "message": "免費開源的翻譯擴充功能：譯文顯示在每段原文下方，雙語對照，保留頁面版面。免費引擎不用註冊，也可填自己的 DeepL、OpenAI、DeepSeek 金鑰。支援選取、懸停和輸入框翻譯，199 種語言。"
+  },
+  "errFastQuota": {"message": "本月 Fast 額度已用完，請下個月再試。"},
+  "acctFastPlus": {"message": "查看 Plus · 每月 1,000 萬 Fast 字元"},
+  "errOutOfCredits": {
+    "message": "點數不足，無法使用 Standard 或 Premium。請購買點數或訂閱方案以繼續，也可以改用免費的 Google 翻譯。"
+  },
+  "acctBuyCredits": {
+    "message": "購買點數"
+  },
+  "acctUseGoogle": {
+    "message": "使用免費 Google 翻譯"
+  }
+}

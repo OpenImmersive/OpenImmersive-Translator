@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
-  "name": "__MSG_extName__",
-  "version": "1.18.0",
+  "name": "__MSG_extStoreName__",
+  "version": "1.19.3",
   "description": "__MSG_extDescShort__",
   "author": "OpenImmersive",
   "homepage_url": "https://github.com/OpenImmersive/OpenImmersive-Translator",
@@ -22,11 +22,7 @@
     "default_title": "__MSG_extName__"
   },
   "background": {
-    "scripts": [
-      "sensitive-mask.js",
-      "languages.js",
-      "background.js"
-    ]
+    "service_worker": "background.js"
   },
   "content_scripts": [
     {
@@ -35,6 +31,7 @@
         "https://*/*"
       ],
       "js": [
+        "sensitive-mask.js",
         "content.js"
       ],
       "css": [
@@ -62,19 +59,8 @@
       "suggested_key": {
         "default": "Alt+T"
       },
-      "description": "\u5207\u6362\u9875\u9762\u53cc\u8bed\u7ffb\u8bd1"
+      "description": "切换页面双语翻译"
     }
   },
-  "default_locale": "en",
-  "browser_specific_settings": {
-    "gecko": {
-      "id": "yulingling@openimmersive.github.io",
-      "strict_min_version": "115.0",
-      "data_collection_permissions": {
-        "required": [
-          "none"
-        ]
-      }
-    }
-  }
+  "default_locale": "en"
 }

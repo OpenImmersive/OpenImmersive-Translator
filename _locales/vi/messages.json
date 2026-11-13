@@ -1,0 +1,19 @@
+{
+  "extStoreName": {
+    "message": "Tiện ích dịch - dịch trang web song ngữ, mã nguồn mở | OpenImmersive"
+  },
+  "extDescShort": {
+    "message": "Tiện ích dịch để đọc song ngữ: bản gốc và bản dịch nằm ngay dưới mỗi đoạn. Công cụ miễn phí không cần tài khoản, hoặc khóa API."
+  },
+  "errFastQuota": {"message": "Đã hết hạn mức Fast tháng này. Hãy thử lại vào tháng sau."},
+  "acctFastPlus": {"message": "Xem Plus · 10 triệu ký tự Fast mỗi tháng"},
+  "errOutOfCredits": {
+    "message": "Bạn không đủ tín dụng để dùng Standard hoặc Premium. Hãy mua tín dụng hoặc đăng ký gói để tiếp tục, hoặc dùng Google Dịch miễn phí."
+  },
+  "acctBuyCredits": {
+    "message": "Mua tín dụng"
+  },
+  "acctUseGoogle": {
+    "message": "Dùng Google Dịch miễn phí"
+  }
+}

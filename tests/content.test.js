@@ -26,8 +26,11 @@ beforeAll(() => {
       onMessage: { addListener: () => {} },
       sendMessage: () => Promise.resolve({ success: true, translation: '测试翻译' })
     },
-    i18n: require('./i18n-mock')
+    i18n: require('./i18n-stub').i18n
   };
+
+  // manifest 把 sensitive-mask.js 排在 content.js 前面注入（行内代码占位符）
+  global.YLSensitive = require('../sensitive-mask.js');
 
   // Signal test mode before the IIFE runs
   global.__yllTestMode = true;
@@ -91,6 +94,67 @@ describe('isAlreadyTargetLang', () => {
 
   test('returns false for empty string', () => {
     expect(fns.isAlreadyTargetLang('', 'zh-CN')).toBe(false);
+  });
+});
+
+// CJK 占比只说明是中日韩之一；目标是中文时日文、韩文页面曾经整页一段不翻
+describe('isAlreadyTargetLang tells Chinese, Japanese and Korean apart by script', () => {
+  const JA = '日本の漫画は、世界中で広く読まれている。';
+  const KO = '한국의 만화는 웹툰으로 세계에 퍼졌다.';
+  const HANS = '这是一个关于漫画历史的说明。';
+  const HANT = '這是一個關於漫畫歷史的說明。';
+
+  test('a Chinese target translates Japanese and Korean', () => {
+    expect(fns.isAlreadyTargetLang(JA, 'zh-CN')).toBe(false);
+    expect(fns.isAlreadyTargetLang(KO, 'zh-CN')).toBe(false);
+    expect(fns.isAlreadyTargetLang(JA, 'zh-TW')).toBe(false);
+  });
+
+  test('a Japanese target translates Chinese and Korean', () => {
+    expect(fns.isAlreadyTargetLang(JA, 'ja')).toBe(true);
+    expect(fns.isAlreadyTargetLang(KO, 'ja')).toBe(false);
+    expect(fns.isAlreadyTargetLang(HANS, 'ja', 'zh-CN')).toBe(false);
+  });
+
+  test('a Korean target translates Chinese and Japanese', () => {
+    expect(fns.isAlreadyTargetLang(KO, 'ko')).toBe(true);
+    expect(fns.isAlreadyTargetLang(JA, 'ko')).toBe(false);
+    expect(fns.isAlreadyTargetLang(HANS, 'ko')).toBe(false);
+  });
+
+  test('Simplified and Traditional are each translated into the other', () => {
+    expect(fns.isAlreadyTargetLang(HANS, 'zh-CN')).toBe(true);
+    expect(fns.isAlreadyTargetLang(HANT, 'zh-CN')).toBe(false);
+    expect(fns.isAlreadyTargetLang(HANT, 'zh-TW')).toBe(true);
+    expect(fns.isAlreadyTargetLang(HANS, 'zh-TW')).toBe(false);
+  });
+
+  test('Han-only text falls back to the declared language', () => {
+    // 纯汉字、两种写法通用的字：只能看作者标的 lang
+    expect(fns.isAlreadyTargetLang('概要', 'zh-CN', 'ja')).toBe(false);
+    expect(fns.isAlreadyTargetLang('概要', 'zh-CN', 'zh')).toBe(true);
+    expect(fns.isAlreadyTargetLang('概要', 'zh-CN', 'zh-TW')).toBe(false);
+    expect(fns.isAlreadyTargetLang('概要', 'ja', 'ja')).toBe(true);
+    expect(fns.isAlreadyTargetLang('概要', 'ja', 'zh')).toBe(false);
+  });
+
+  test('a Japanese paragraph on a lang="ja" page is sent to the engine for a Chinese target', async () => {
+    const sent = [];
+    const original = global.browser.runtime.sendMessage;
+    global.browser.runtime.sendMessage = (m) => { sent.push(m.text); return Promise.resolve({ success: true, translation: '日本漫画在全世界被广泛阅读。' }); };
+    document.documentElement.setAttribute('lang', 'ja');
+    const p = document.createElement('p');
+    p.textContent = JA;
+    document.body.appendChild(p);
+    try {
+      await fns.translateBlock(p);
+      expect(sent).toEqual([JA]);
+      expect(p.dataset.yllDone).toBe('1');
+    } finally {
+      p.remove();
+      document.documentElement.removeAttribute('lang');
+      global.browser.runtime.sendMessage = original;
+    }
   });
 });
 
@@ -213,14 +277,14 @@ describe('shouldTranslate', () => {
     footer.remove();
   });
 
-  test('returns false for element containing <code>', () => {
-    const p = document.createElement('p');
-    const code = document.createElement('code');
-    code.textContent = 'const x = 1;';
-    p.appendChild(code);
-    document.body.appendChild(p);
-    expect(fns.shouldTranslate(p)).toBe(false);
-    p.remove();
+  test('returns false for element containing a <pre> code block', () => {
+    const li = document.createElement('li');
+    const pre = document.createElement('pre');
+    pre.textContent = 'const x = 1;';
+    li.append('Run this:', pre);
+    document.body.appendChild(li);
+    expect(fns.shouldTranslate(li)).toBe(false);
+    li.remove();
   });
 
   test('returns true for regular paragraph in body', () => {
@@ -451,6 +515,42 @@ describe('hover translate', () => {
     expect(fns.findHoverBlock(document.getElementById('zh'))).toBeNull();
   });
 
+  test('findHoverBlock 认出只装行内内容的 div（X 推文正文 div[data-testid=tweetText]）', () => {
+    document.body.innerHTML = `
+      <main><div data-testid="primaryColumn"><div data-testid="cellInnerDiv"><article role="article">
+        <div><div data-testid="User-Name"><span>NASA</span></div></div>
+        <div data-testid="tweetText" id="tw" dir="auto">
+          <span id="s1">Our Artemis crew completed another round of launch rehearsals today.</span><br>
+          <a href="#">#Artemis</a><span> more updates soon</span>
+        </div>
+      </article></div></div></main>`;
+    expect(fns.findHoverBlock(document.getElementById('s1')).id).toBe('tw');
+  });
+
+  test('findHoverBlock 不因行内排版的 div 小徽标放弃整段', () => {
+    document.body.innerHTML = `
+      <main><div id="post">thread of headlines in newspaper archives from the fifties
+        <div style="display:inline-flex"><span style="display:block">1/28</span></div></div></main>`;
+    expect(fns.findHoverBlock(document.getElementById('post')).id).toBe('post');
+  });
+
+  test('findHoverBlock 不会往上停在整栏容器上', () => {
+    document.body.innerHTML = `
+      <main><div id="col">
+        <div><span>First card in the column with a sentence.</span><div>nested</div></div>
+        <span id="loose">Loose text sitting directly in the column container.</span>
+      </div></main>`;
+    expect(fns.findHoverBlock(document.getElementById('loose'))).toBeNull();
+  });
+
+  test('findHoverBlock 对维基式 <p> 仍停在段落本身', () => {
+    document.body.innerHTML = `
+      <main><div class="mw-parser-output">
+        <p id="wp">The <b><a href="#" id="lnk">Moon</a></b> is Earth's only natural satellite.<sup><a href="#">[1]</a></sup></p>
+      </div></main>`;
+    expect(fns.findHoverBlock(document.getElementById('lnk')).id).toBe('wp');
+  });
+
   test('findHoverBlock 对非文本块返回 null', () => {
     document.body.innerHTML = '<div id="wrap"><nav><p>Skip me</p></nav></div>';
     // nav 内的段落被 shouldTranslate 排除
@@ -506,6 +606,33 @@ describe('collectBlocks leaf fallback', () => {
     const blocks = fns.collectBlocks();
     expect(blocks).toContain(inner);
     expect(blocks).not.toContain(wrap);
+    document.body.innerHTML = '';
+  });
+
+  test('a div holding its own text and an inline-laid-out div badge qualifies', () => {
+    document.body.innerHTML = `<div id="post">thread of headlines in newspaper archives from the fifties
+      <div style="display:inline-flex"><span style="display:block">1/28</span></div></div>`;
+    expect(fns.collectBlocks()).toContain(document.getElementById('post'));
+    document.body.innerHTML = '';
+  });
+
+  test('a sidebar cell list keeps its cells as the blocks, not the wrapper', () => {
+    // 外壳自己有字、子元素是块级的 div：照旧只收里面的格子
+    document.body.innerHTML = `<div id="side">About this repository
+      ${Array.from({ length: 4 }, (_, i) => `<div class="cell">${i + 100} watching this repository right now</div>`).join('')}</div>`;
+    const blocks = fns.collectBlocks();
+    expect(blocks).not.toContain(document.getElementById('side'));
+    expect(blocks.filter(b => b.classList.contains('cell'))).toHaveLength(4);
+    document.body.innerHTML = '';
+  });
+
+  test('a row of inline-block chips without text of its own keeps the chips as blocks', () => {
+    document.body.innerHTML = `<div id="chips">
+      <div style="display:inline-block">Machine translation research</div>
+      <div style="display:inline-block">Natural language processing</div></div>`;
+    const blocks = fns.collectBlocks();
+    expect(blocks).not.toContain(document.getElementById('chips'));
+    expect(blocks.filter(b => b.parentElement.id === 'chips')).toHaveLength(2);
     document.body.innerHTML = '';
   });
 });
@@ -657,6 +784,88 @@ describe('code block containment', () => {
     expect(fns.collectBlocks()).not.toContain(span);
   });
 
+  // MDN 几乎每段都夹着 <code>fetch()</code>：按「含 code」整段跳过会漏掉大半正文
+  test('a paragraph with inline code is translated, code text included as is', () => {
+    document.body.innerHTML = '<p>The <code>fetch()</code> method returns a <code>Promise</code> object.</p>';
+    const p = document.querySelector('p');
+    expect(fns.shouldTranslate(p)).toBe(true);
+    expect(fns.collectBlocks()).toContain(p);
+    expect(fns.extractText(p)).toBe('The fetch() method returns a Promise object.');
+  });
+
+  // 引擎会把标识符当普通词意译（window→窗口）：行内代码用占位符送出、回来还原
+  describe('inline code is protected from the engine', () => {
+    const DICT = { call: '调用', from: '从', the: '这个', object: '对象', press: '按', to: '来', save: '保存',
+      window: '窗口', fetch: '获取', set: '设置', count: '计数' };
+    // 逐词「翻译」的假引擎：认得的英文词全换掉，占位符按 reply 处理
+    function engine(reply = (t) => t) {
+      const sent = [];
+      global.browser.runtime.sendMessage = (m) => {
+        sent.push(m.text);
+        const words = m.text.replace(/[A-Za-z]+/g, w => DICT[w.toLowerCase()] || w);
+        return Promise.resolve({ success: true, translation: reply(words) });
+      };
+      return sent;
+    }
+    let original;
+    beforeEach(() => {
+      original = global.browser.runtime.sendMessage;
+      fns.clearMemo();
+      fns.state.failedCount = 0;
+    });
+    afterEach(() => { global.browser.runtime.sendMessage = original; });
+    const translationOf = (el) => el.nextElementSibling && el.nextElementSibling.dataset.yllInject
+      ? el.nextElementSibling.textContent : null;
+
+    test('identifiers come back exactly as written', async () => {
+      const sent = engine();
+      document.body.innerHTML = '<p>Call <code>fetch()</code> from the <code>window</code> object.</p>';
+      const p = document.querySelector('p');
+      await fns.translateBlock(p);
+      expect(sent[0]).not.toMatch(/fetch|window/);
+      expect(translationOf(p)).toBe('调用 fetch() 从 这个 window 对象.');
+    });
+
+    test('kbd, samp and var are protected too', async () => {
+      engine();
+      document.body.innerHTML = '<p>Press <kbd>Save</kbd> to set <var>count</var> from <samp>window</samp>.</p>';
+      const p = document.querySelector('p');
+      await fns.translateBlock(p);
+      expect(translationOf(p)).toBe('按 Save 来 设置 count 从 window.');
+    });
+
+    test('a placeholder the engine re-cased and spaced out is still restored', async () => {
+      engine(t => t.replace(/__PII_CODE_(\d+)__/g, '__ pii_code_$1 __'));
+      document.body.innerHTML = '<p>Call <code>fetch()</code> from the <code>window</code> object.</p>';
+      const p = document.querySelector('p');
+      await fns.translateBlock(p);
+      expect(translationOf(p)).toBe('调用 fetch() 从 这个 window 对象.');
+    });
+
+    test('a placeholder the engine lost leaves the block untranslated', async () => {
+      engine(t => t.replace('__PII_CODE_2__', '窗口'));
+      document.body.innerHTML = '<p>Call <code>fetch()</code> from the <code>window</code> object.</p>';
+      const p = document.querySelector('p');
+      await fns.translateBlock(p);
+      expect(translationOf(p)).toBeNull();
+      expect(p.dataset.yllDone).toBeUndefined();
+      expect(fns.state.failedCount).toBe(0);
+    });
+  });
+
+  test('a list item that is only inline code is not sent', async () => {
+    const sent = [];
+    const original = global.browser.runtime.sendMessage;
+    global.browser.runtime.sendMessage = (m) => { sent.push(m.text); return Promise.resolve({ success: true, translation: '请求正文' }); };
+    document.body.innerHTML = '<ul><li><code>Request.body.getReader()</code></li></ul>';
+    try {
+      await fns.translateBlock(document.querySelector('li'));
+      expect(sent).toEqual([]);
+    } finally {
+      global.browser.runtime.sendMessage = original;
+    }
+  });
+
   test('a span outside code is still translatable', () => {
     document.body.innerHTML = '';
     const span = document.createElement('span');
@@ -721,6 +930,87 @@ describe('extractText skips non-content children', () => {
   });
 });
 
+// GitHub 上「README.md→自述文件.md」「LICENSE→执照」「LibreTranslate→自由翻译」
+describe('names, files and dates are not translated', () => {
+  test('looksLikeName recognizes file names, identifiers and brand-style names', () => {
+    for (const t of ['README.md', 'main.py', '.gitignore', 'docker-compose.yml', 'LICENSE', 'VERSION',
+      'LibreTranslate', 'check_command', 'src/app', 'v1.19.0']) {
+      expect([t, fns.looksLikeName(t)]).toEqual([t, true]);
+    }
+  });
+
+  test('looksLikeName leaves words and sentences alone, including space-free CJK', () => {
+    for (const t of ['Overview', 'Getting Started', 'docker', 'Hello.', 'LibreTranslateは便利なツールです',
+      '日本の漫画は世界中で読まれている', 'Übersicht']) {
+      expect([t, fns.looksLikeName(t)]).toEqual([t, false]);
+    }
+  });
+
+  test('a block whose text is only a date, code or file links has no prose', () => {
+    document.body.innerHTML = `
+      <table><tr>
+        <td id="date"><relative-time datetime="2026-10-26">Oct 26, 2026</relative-time></td>
+        <td id="time"><time datetime="2026-10-26">26 October 2026</time></td>
+        <td id="commit"><a href="/o/r/commit/abc123">Use Ubuntu 24.04 for runners</a></td>
+        <td id="files"><a href="/o/r/tree/main/docker">docker</a></td>
+        <td id="prose">See <a href="/o/r/blob/main/README.md">the readme</a> before you start</td>
+      </tr></table>`;
+    const has = (id) => { const el = document.getElementById(id); return fns.hasProse(el, fns.extractText(el)); };
+    expect(has('date')).toBe(false);
+    expect(has('time')).toBe(false);
+    expect(has('commit')).toBe(false);
+    expect(has('files')).toBe(false);
+    expect(has('prose')).toBe(true);
+  });
+
+  test('translateBlock does not send a file name, a brand heading or a date cell', async () => {
+    const sent = [];
+    const original = global.browser.runtime.sendMessage;
+    global.browser.runtime.sendMessage = (m) => { sent.push(m.text); return Promise.resolve({ success: true, translation: '译文' }); };
+    document.body.innerHTML = `
+      <table><tr><td id="f">README.md</td><td id="d"><relative-time>Oct 26, 2026</relative-time></td></tr></table>
+      <article><h1 id="h">LibreTranslate</h1><p id="p">Free and Open Source Machine Translation API.</p></article>`;
+    try {
+      for (const id of ['f', 'd', 'h', 'p']) await fns.translateBlock(document.getElementById(id));
+      expect(sent).toEqual(['Free and Open Source Machine Translation API.']);
+    } finally {
+      global.browser.runtime.sendMessage = original;
+      document.body.innerHTML = '';
+    }
+  });
+});
+
+// ─── Alt+Enter input translation ────────────────────────────────────────────
+describe('Alt+Enter input translation', () => {
+  const altEnter = () => new KeyboardEvent('keydown', { key: 'Enter', altKey: true, bubbles: true, cancelable: true, composed: true });
+  afterEach(() => { document.body.innerHTML = ''; });
+
+  // 维基搜索框：有高亮的联想项时，它自己的 Enter 处理会直接跳页
+  test('a search box\'s own Enter handler does not also run', async () => {
+    document.body.innerHTML = '<form><input type="search" value="机器翻译"></form>';
+    const input = document.querySelector('input');
+    let siteHandled = false;
+    input.addEventListener('keydown', (e) => { if (e.key === 'Enter') siteHandled = true; });
+    const ev = altEnter();
+    input.dispatchEvent(ev);
+    await new Promise(r => setTimeout(r, 0));
+    expect(ev.defaultPrevented).toBe(true);
+    expect(siteHandled).toBe(false);
+    expect(input.value).toBe('测试翻译');
+  });
+
+  test('an input inside an open shadow root is found through the composed path', async () => {
+    const host = document.createElement('div');
+    document.body.appendChild(host);
+    const input = document.createElement('input');
+    input.value = '你好世界';
+    host.attachShadow({ mode: 'open' }).appendChild(input);
+    input.dispatchEvent(altEnter());
+    await new Promise(r => setTimeout(r, 0));
+    expect(input.value).toBe('测试翻译');
+  });
+});
+
 // ─── page hotkeys (Alt+T / Alt+A / Alt+W) ───────────────────────────────────
 
 describe('pageHotkeyAction', () => {
@@ -773,10 +1063,10 @@ describe('float ball hover menu', () => {
     expect(document.getElementById('yll-float-ball')).not.toBeNull();
     const items = wrap.querySelectorAll('.yll-ball-item');
     expect(items.length).toBe(3);
-    expect(items[2].textContent).toBe('设置');
+    expect(items[2].textContent).toBe('Settings');
   });
 
-  test('设置 item asks background to open the options page', () => {
+  test('Settings item asks background to open the options page', () => {
     const sent = [];
     global.browser.runtime.sendMessage = (m) => { sent.push(m); return Promise.resolve({}); };
     fns.removeFloatBall();
@@ -985,6 +1275,214 @@ describe('displayMode replace', () => {
   });
 });
 
+// ─── 会被意译的产品名原样保留（GitHub README 里的 Bluesky 曾被译成「蓝天」）──
+
+describe('product names on the keep-list', () => {
+  let original;
+  let sent;
+  beforeEach(() => {
+    original = global.browser.runtime.sendMessage;
+    fns.clearMemo();
+    sent = [];
+    global.browser.runtime.sendMessage = (m) => {
+      sent.push(m.text);
+      return Promise.resolve({ success: true, translation: m.text.replace('Follow us on', '关注我们：').replace('for updates', '获取更新').replace('Signal strength drops', '信号强度下降') });
+    };
+  });
+  afterEach(() => { global.browser.runtime.sendMessage = original; document.body.innerHTML = ''; });
+
+  test('Bluesky goes out as a placeholder and comes back as written', async () => {
+    document.body.innerHTML = '<p id="p">Follow us on Bluesky and Mastodon for updates.</p>';
+    const p = document.getElementById('p');
+    await fns.translateBlock(p);
+    expect(sent[0]).toBe('Follow us on __PII_NAME_1__ and __PII_NAME_2__ for updates.');
+    expect(p.nextElementSibling.textContent).toBe('关注我们： Bluesky and Mastodon 获取更新.');
+  });
+
+  test('ordinary words that are also product names elsewhere are not frozen', async () => {
+    document.body.innerHTML = '<p id="p">Signal strength drops near the coast.</p>';
+    await fns.translateBlock(document.getElementById('p'));
+    expect(sent[0]).toBe('Signal strength drops near the coast.');
+  });
+
+  test('a block that is only a kept name is not sent', async () => {
+    document.body.innerHTML = '<li id="li">Bluesky</li>';
+    await fns.translateBlock(document.getElementById('li'));
+    expect(sent).toEqual([]);
+  });
+});
+
+// ─── 仅译文模式下链接仍可点（此前原文连同链接一起藏起来，译文是纯文字）──────
+
+describe('links in translation-only mode', () => {
+  let original;
+  let sent;
+  function engine(reply) {
+    sent = [];
+    global.browser.runtime.sendMessage = (m) => { sent.push(m.text); return Promise.resolve({ success: true, translation: reply(m.text) }); };
+  }
+  beforeEach(() => { original = global.browser.runtime.sendMessage; fns.clearMemo(); fns.setDisplayMode('replace'); });
+  afterEach(() => { global.browser.runtime.sendMessage = original; fns.setDisplayMode('bilingual'); document.body.innerHTML = ''; });
+
+  const PARA = '<p id="p">Read the <a href="/docs" id="d" class="ext">official documentation</a> and the <a href="/book">Rust book</a> before you start.</p>';
+
+  test('link text goes out between paired markers and comes back as clickable links, even reordered', async () => {
+    engine(() => '开始之前，请阅读<a2>Rust书籍</a2>和 < A1 >官方文档</a1>。');
+    document.body.innerHTML = PARA;
+    await fns.translateBlock(document.getElementById('p'));
+    expect(sent[0]).toBe('Read the <a1>official documentation</a1> and the <a2>Rust book</a2> before you start.');
+    const tr = document.querySelector('#p [data-yll-inject]');
+    expect(tr.textContent).toBe('开始之前，请阅读Rust书籍和官方文档。');
+    const as = tr.querySelectorAll('a');
+    expect(Array.from(as, a => [a.getAttribute('href'), a.textContent])).toEqual([['/book', 'Rust书籍'], ['/docs', '官方文档']]);
+    expect(as[1].className).toBe('ext');
+    expect(as[1].id).toBe(''); // 原链接还在隐藏壳里，id 不能重复
+  });
+
+  test('when a marker is lost the block falls back to showing the original with its links', async () => {
+    engine(() => '开始之前，请阅读<a1>官方文档和Rust书籍</a2>。');
+    document.body.innerHTML = PARA;
+    const p = document.getElementById('p');
+    await fns.translateBlock(p);
+    expect(sent).toHaveLength(2);
+    expect(p.querySelector('[data-yll-orig]')).toBeNull();
+    expect(p.querySelector('a[href="/docs"]')).not.toBeNull();
+    expect(p.nextElementSibling.textContent).toBe('开始之前，请阅读官方文档和Rust书籍。');
+  });
+
+  test('a link the engine puts on two mentions is rebuilt on both', async () => {
+    engine(() => '请阅读<a1>官方文档</a1>和<a2>Rust书籍</a2>，<a1>文档</a1>很短。');
+    document.body.innerHTML = PARA;
+    await fns.translateBlock(document.getElementById('p'));
+    expect(sent).toHaveLength(1);
+    const as = document.querySelectorAll('#p [data-yll-inject] a');
+    expect(Array.from(as, a => a.getAttribute('href'))).toEqual(['/docs', '/book', '/docs']);
+  });
+
+  // Bing 留得住 <a1>、Google 留得住 __PII_LINK_1__：第一种认不回来就用第二种再问一次
+  test('when the tag markers are lost the block is asked once more with placeholder markers', async () => {
+    engine((t) => (t.includes('<a1>') ? '开始之前请阅读官方文档和Rust书籍。'
+      : '开始之前，请阅读__PII_LINK_1__官方文档__PII_LINKEND_1__和__PII_LINK_2__Rust书籍__PII_LINKEND_2__。'));
+    document.body.innerHTML = PARA;
+    await fns.translateBlock(document.getElementById('p'));
+    expect(sent).toHaveLength(2);
+    expect(sent[1]).toBe('Read the __PII_LINK_1__official documentation__PII_LINKEND_1__ and the __PII_LINK_2__Rust book__PII_LINKEND_2__ before you start.');
+    const as = document.querySelectorAll('#p [data-yll-inject] a');
+    expect(Array.from(as, a => a.getAttribute('href'))).toEqual(['/docs', '/book']);
+  });
+
+  // 引擎在标记里外各留空格：重建后链接两头曾是双空格（ar.wikipedia 上看得到）
+  describe('whitespace around rebuilt links', () => {
+    afterEach(() => { fns.state.targetLang = 'zh-CN'; });
+    const rebuilt = async (reply) => {
+      fns.clearMemo();
+      engine(reply);
+      document.body.innerHTML = PARA;
+      await fns.translateBlock(document.getElementById('p'));
+      return document.querySelector('#p [data-yll-inject]');
+    };
+
+    test('Chinese: no space between the link and Chinese text or punctuation, one next to Latin', async () => {
+      const tr = await rebuilt(() => '开始之前，请阅读 <a1> 官方文档 </a1>  和 <a2>Rust 书籍</a2> 。');
+      expect(tr.textContent).toBe('开始之前，请阅读官方文档和 Rust 书籍。');
+      expect(Array.from(tr.querySelectorAll('a'), a => a.textContent)).toEqual(['官方文档', 'Rust 书籍']);
+    });
+
+    test('Chinese: a space next to Latin letters is kept as one', async () => {
+      const tr = await rebuilt(() => '请阅读 <a1>docs</a1>  和<a2>Rust 书籍</a2>。');
+      expect(tr.textContent).toBe('请阅读 docs 和Rust 书籍。');
+    });
+
+    test('spaced languages: each boundary collapses to one space, none before punctuation', async () => {
+      fns.state.targetLang = 'fr';
+      const tr = await rebuilt(() => 'Lisez la <a1> documentation officielle </a1>  et le <a2>livre Rust</a2> , avant de commencer.');
+      expect(tr.textContent).toBe('Lisez la documentation officielle et le livre Rust, avant de commencer.');
+    });
+
+    test('a link the engine left empty is dropped and its spaces collapse', async () => {
+      const tr = await rebuilt(() => '开始之前，请阅读官方文档 <a1> </a1> 和 <a2>书籍</a2>。');
+      expect(tr.textContent).toBe('开始之前，请阅读官方文档和书籍。');
+      expect(tr.querySelectorAll('a').length).toBe(1);
+    });
+
+    test('Korean keeps spaces between words', async () => {
+      fns.state.targetLang = 'ko';
+      const tr = await rebuilt(() => '시작하기 전에 <a1> 공식 문서 </a1>와  <a2>Rust 책</a2>을 읽으세요.');
+      expect(tr.textContent).toBe('시작하기 전에 공식 문서와 Rust 책을 읽으세요.');
+    });
+
+    test('no space is added where the translation had none; padding inside the markers between words counts', async () => {
+      fns.state.targetLang = 'fr';
+      expect((await rebuilt(() => 'Lisez(<a1>docs</a1>)et<a2>livre</a2>.')).textContent).toBe('Lisez(docs)etlivre.');
+      expect((await rebuilt(() => 'Lisez la<a1> doc </a1>et le <a2>livre</a2>.')).textContent).toBe('Lisez la doc et le livre.');
+    });
+  });
+
+  test('removeTranslations brings the original links back', async () => {
+    engine(() => '请阅读<a1>官方文档</a1>和<a2>Rust书籍</a2>。');
+    document.body.innerHTML = PARA;
+    await fns.translateBlock(document.getElementById('p'));
+    fns.removeTranslations();
+    expect(document.getElementById('p').outerHTML).toBe(PARA);
+  });
+
+  test('bilingual mode sends no link markers', async () => {
+    fns.setDisplayMode('bilingual');
+    engine(() => '开始之前请阅读官方文档和Rust书籍。');
+    document.body.innerHTML = PARA;
+    await fns.translateBlock(document.getElementById('p'));
+    expect(sent[0]).toBe('Read the official documentation and the Rust book before you start.');
+  });
+});
+
+// ─── 译文方向跟目标语言走（ar.wikipedia 上的中文译文曾右对齐、句号跳到行首）──
+
+describe('translation direction follows the target language', () => {
+  afterEach(() => { fns.setDisplayMode('bilingual'); fns.state.targetLang = 'zh-CN'; document.body.innerHTML = ''; });
+
+  test('a Chinese translation on a right-to-left page is marked ltr and zh-CN', () => {
+    document.body.innerHTML = '<div dir="rtl"><p id="p" style="text-align: right">المشتري هو أكبر كواكب المجموعة الشمسية</p><h2 id="h">علم الفلك</h2></div>';
+    fns.injectTranslation(document.getElementById('p'), '木星是太阳系最大的行星。');
+    fns.injectTranslation(document.getElementById('h'), '天文学');
+    const div = document.getElementById('p').nextElementSibling;
+    expect(div.dir).toBe('ltr');
+    expect(div.lang).toBe('zh-CN');
+    expect(div.style.textAlign).toBe(''); // 原文的 right 不照搬
+    const span = document.querySelector('#h [data-yll-inject]');
+    expect(span.dir).toBe('ltr');
+    expect(span.lang).toBe('zh-CN');
+  });
+
+  test('in translation-only mode the translation becomes its own ltr block', () => {
+    fns.setDisplayMode('replace');
+    document.body.innerHTML = '<div dir="rtl"><p id="p">المشتري هو أكبر كواكب المجموعة الشمسية</p></div>';
+    fns.injectTranslation(document.getElementById('p'), '木星是太阳系最大的行星。');
+    const tr = document.querySelector('#p [data-yll-inject]');
+    expect(tr.dir).toBe('ltr');
+    expect(tr.style.display).toBe('block');
+    expect(tr.style.textAlign).toBe('start');
+  });
+
+  test('an Arabic translation of an English page is marked rtl', () => {
+    fns.state.targetLang = 'ar';
+    document.body.innerHTML = '<p id="p" style="text-align: center">Jupiter is the largest planet.</p>';
+    fns.injectTranslation(document.getElementById('p'), 'المشتري هو أكبر كوكب.');
+    const div = document.getElementById('p').nextElementSibling;
+    expect(div.dir).toBe('rtl');
+    expect(div.lang).toBe('ar');
+    expect(div.style.textAlign).toBe('center'); // 居中照搬
+  });
+
+  test('same-direction translations keep the original alignment and stay inline in translation-only mode', () => {
+    fns.setDisplayMode('replace');
+    document.body.innerHTML = '<p id="p">Jupiter is the largest planet.</p>';
+    fns.injectTranslation(document.getElementById('p'), '木星是最大的行星。');
+    const tr = document.querySelector('#p [data-yll-inject]');
+    expect(tr.dir).toBe('ltr');
+    expect(tr.style.display).toBe('');
+  });
+});
+
 // ─── 失败留痕（此前是个空 catch，整页 0 段成功和「页面本来就不需要翻」无法区分）──
 
 describe('translateBlock records why a segment failed', () => {
@@ -994,6 +1492,7 @@ describe('translateBlock records why a segment failed', () => {
   beforeEach(() => {
     // global.browser 是在 beforeAll 里装起来的，describe 求值时还不存在
     original = global.browser.runtime.sendMessage;
+    fns.clearMemo(); // 各用例同一段原文、不同的引擎回复
     fns.state.failedCount = 0;
     fns.state.lastError = '';
     fns.state.translatedCount = 0;

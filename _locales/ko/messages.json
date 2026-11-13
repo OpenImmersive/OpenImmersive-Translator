@@ -1,0 +1,19 @@
+{
+  "extStoreName": {
+    "message": "번역 확장 프로그램 - 이중 언어 페이지 번역, 무료 오픈소스 | OpenImmersive"
+  },
+  "extDescShort": {
+    "message": "원문 아래에 번역문을 보여 주는 이중 언어 번역 확장 프로그램입니다. 무료 엔진은 가입이 필요 없고, DeepL, OpenAI, DeepSeek API 키를 직접 넣을 수 있습니다. 199개 언어를 지원합니다."
+  },
+  "errFastQuota": {"message": "이번 달 Fast 한도에 도달했습니다. 다음 달에 다시 시도하세요."},
+  "acctFastPlus": {"message": "Plus 보기 · 월 Fast 1,000만 자"},
+  "errOutOfCredits": {
+    "message": "Standard 또는 Premium을 이용할 크레딧이 부족합니다. 계속하려면 크레딧을 구매하거나 구독하세요. 무료 Google 번역도 이용할 수 있습니다."
+  },
+  "acctBuyCredits": {
+    "message": "크레딧 구매"
+  },
+  "acctUseGoogle": {
+    "message": "무료 Google 번역 사용"
+  }
+}
