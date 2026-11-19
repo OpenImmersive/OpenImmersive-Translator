@@ -1,4 +1,5 @@
 {
+  "optFeatureCounts": {"message": "번역 기능 사용 횟수를 OpenImmersive와 공유 (URL, 파일 이름, 텍스트 제외)"},
   "extStoreName": {
     "message": "번역 확장 프로그램 - 이중 언어 페이지 번역, 무료 오픈소스 | OpenImmersive"
   },
@@ -15,5 +16,14 @@
   },
   "acctUseGoogle": {
     "message": "무료 Google 번역 사용"
+  },
+  "comparePagePrompt": {
+    "message": "Standard AI로 이 페이지를 다시 번역해 비교해 보세요. 약 $COST$ 크레딧이 필요합니다.",
+    "placeholders": {
+      "cost": { "content": "$1" }
+    }
+  },
+  "comparePageAction": {
+    "message": "Standard로 비교"
   }
 }

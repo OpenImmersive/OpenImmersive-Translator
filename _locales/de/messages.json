@@ -1,4 +1,5 @@
 {
+  "optFeatureCounts": {"message": "Nutzungshäufigkeit der Übersetzungsfunktionen mit OpenImmersive teilen (ohne URLs, Dateinamen oder Texte)"},
   "extStoreName": {
     "message": "Übersetzer-Erweiterung - Webseite zweisprachig, kostenlos | OpenImmersive"
   },
@@ -15,5 +16,14 @@
   },
   "acctUseGoogle": {
     "message": "Google kostenlos nutzen"
+  },
+  "comparePagePrompt": {
+    "message": "Übersetze diese Seite zum Vergleich erneut mit Standard-KI. Etwa $COST$ Credits.",
+    "placeholders": {
+      "cost": { "content": "$1" }
+    }
+  },
+  "comparePageAction": {
+    "message": "Mit Standard vergleichen"
   }
 }

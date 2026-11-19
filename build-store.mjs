@@ -3,8 +3,8 @@
 // moving to the paid server-side product and never ships in the open extension.
 //
 // Outputs:
-//   dist-store/chrome/   + yulingling-chrome-v<version>.zip   (CWS)
-//   dist-store/firefox/  + yulingling-firefox-v<version>.zip  (AMO)
+//   dist-store/chrome/   + openimmersive-chrome-v<version>.zip   (CWS)
+//   dist-store/firefox/  + openimmersive-firefox-v<version>.zip  (AMO)
 //
 // Run: node build-store.mjs
 import { readFileSync, writeFileSync, mkdirSync, rmSync, cpSync, existsSync, readdirSync } from 'fs';
@@ -93,7 +93,7 @@ for (const target of ['chrome', 'firefox']) {
         id: GECKO_ID,
         strict_min_version: '115.0',
         // AMO requirement for new submissions (2025-11+): declare data collection.
-        data_collection_permissions: { required: ['none'] },
+        data_collection_permissions: { required: ['none'], optional: ['technicalAndInteraction'] },
       },
     };
   }

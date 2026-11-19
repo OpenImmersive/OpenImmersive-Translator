@@ -26,8 +26,15 @@ async function loadSettings() {
   const data = await getStorage([
     'targetLang', 'engine', 'displayMode', 'apiKeys', 'sensitiveMask',
     'hoverTranslate', 'hoverKey', 'selectionTranslate',
-    'inputTranslate', 'inputTargetLang'
+    'inputTranslate', 'inputTargetLang', 'shareFeatureCounts'
   ]);
+
+  const box = document.getElementById('featureCounts');
+  box.checked = data.shareFeatureCounts === true;
+  if (typeof browser !== 'undefined' && api.runtime.getBrowserInfo) {
+    const permissions = await api.permissions.getAll();
+    box.checked = box.checked && !!permissions.data_collection?.includes('technicalAndInteraction');
+  }
 
   // 常用
   document.getElementById('defLang').value = data.targetLang || 'zh-CN';
@@ -48,6 +55,18 @@ async function loadSettings() {
   document.getElementById('keyLibre').value = keys.libretranslate || '';
   document.getElementById('libreUrl').value = keys.libretranslate_url || '';
 }
+
+document.getElementById('featureCounts').addEventListener('change', async ({ target }) => {
+  try {
+    if (target.checked && typeof browser !== 'undefined' && api.runtime.getBrowserInfo) {
+      target.checked = await api.permissions.request({ data_collection: ['technicalAndInteraction'] });
+    }
+    await setStorage({ shareFeatureCounts: target.checked });
+  } catch {
+    target.checked = false;
+    await setStorage({ shareFeatureCounts: false });
+  }
+});
 
 // ===== 保存设置 =====
 
@@ -206,6 +225,7 @@ if (fileInput) {
     fileStatus.textContent = t('fileTranslating');
     fileDownload.style.display = 'none';
 
+    void api.runtime.sendMessage({ type: 'featureUse', feature: 'file' }).catch(() => {});
     const result = await YLFile.translateFile({
       format,
       text,

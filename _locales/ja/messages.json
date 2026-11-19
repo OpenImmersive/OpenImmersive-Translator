@@ -1,4 +1,5 @@
 {
+  "optFeatureCounts": {"message": "翻訳機能の利用回数を OpenImmersive に共有する（URL、ファイル名、テキストは含みません）"},
   "extStoreName": {
     "message": "翻訳拡張機能 - 対訳ページ翻訳・無料オープンソース | OpenImmersive"
   },
@@ -15,5 +16,14 @@
   },
   "acctUseGoogle": {
     "message": "無料の Google 翻訳を使う"
+  },
+  "comparePagePrompt": {
+    "message": "Standard AI でこのページを再翻訳して比べてみましょう。約 $COST$ クレジットです。",
+    "placeholders": {
+      "cost": { "content": "$1" }
+    }
+  },
+  "comparePageAction": {
+    "message": "Standard で比較"
   }
 }

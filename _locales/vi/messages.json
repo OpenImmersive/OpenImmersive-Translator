@@ -1,4 +1,5 @@
 {
+  "optFeatureCounts": {"message": "Chia sẻ số lần dùng từng tính năng dịch với OpenImmersive (không gồm URL, tên tệp hay văn bản)"},
   "extStoreName": {
     "message": "Tiện ích dịch - dịch trang web song ngữ, mã nguồn mở | OpenImmersive"
   },
@@ -15,5 +16,14 @@
   },
   "acctUseGoogle": {
     "message": "Dùng Google Dịch miễn phí"
+  },
+  "comparePagePrompt": {
+    "message": "Dịch lại trang này bằng AI Standard để so sánh. Khoảng $COST$ tín dụng.",
+    "placeholders": {
+      "cost": { "content": "$1" }
+    }
+  },
+  "comparePageAction": {
+    "message": "So sánh với Standard"
   }
 }

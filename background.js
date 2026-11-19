@@ -70,14 +70,44 @@ if (api.contextMenus) {
   });
 }
 
+const countedFeatures = new Set(['page', 'hover', 'selection', 'input', 'file']);
+
+async function reportFeature(feature) {
+  if (!countedFeatures.has(feature)) return;
+  const settings = await storageGet(['shareFeatureCounts']);
+  if (settings.shareFeatureCounts !== true) return;
+  if (typeof browser !== 'undefined' && api.runtime.getBrowserInfo) {
+    const permissions = await api.permissions.getAll();
+    if (!permissions.data_collection?.includes('technicalAndInteraction')) return;
+  }
+  await fetch('https://openimmersive.ai/api/extension/feature-count', {
+    method: 'POST',
+    headers: { 'X-OI-Feature': feature },
+    credentials: 'omit',
+    referrerPolicy: 'no-referrer',
+    redirect: 'error',
+    cache: 'no-store'
+  });
+}
+
 // ===== 消息监听 =====
 
 api.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  if (message.type === 'featureUse') {
+    reportFeature(message.feature).then(() => sendResponse(null), () => sendResponse(null));
+    return true;
+  }
   if (message.type === 'translate') {
     translate(message)
       .then(result => sendResponse({ success: true, translation: result }))
       .catch(err => sendResponse({ success: false, error: err.message, code: err.code, site: err.site }));
     return true; // 保持异步通道
+  }
+
+  if (message.type === 'oiCompareOffer') {
+    compareQueue = compareQueue.catch(() => {}).then(() => compareOffer(message.chars, sender.tab?.id));
+    compareQueue.then(sendResponse, () => sendResponse(null));
+    return true;
   }
 
   if (message.type === 'detectLang') {
@@ -154,6 +184,33 @@ async function oiAuthStatus() {
   return { success: true, site, available: true, user: (data && data.user) || null };
 }
 
+// Serialize the counter across tabs so simultaneous pages cannot both claim the offer.
+let compareQueue = Promise.resolve();
+function compareStorageSet(items) {
+  if (typeof browser !== 'undefined') return browser.storage.local.set(items);
+  return new Promise((resolve, reject) => chrome.storage.local.set(items, () => {
+    if (chrome.runtime.lastError) reject(new Error(chrome.runtime.lastError.message));
+    else resolve();
+  }));
+}
+async function compareOffer(chars, tabId) {
+  if (!Number.isSafeInteger(chars) || chars <= 0 || !Number.isInteger(tabId)) return null;
+  const { oiComparePages = 0, oiCompareShown } = await storageGet(['oiComparePages', 'oiCompareShown']);
+  if (oiCompareShown) return null;
+  const count = Math.min(20, oiComparePages + 1);
+  await compareStorageSet({ oiComparePages: count });
+  if (count < 20) return null;
+  const { user } = await oiAuthStatus();
+  const usage = user?.standardUsage;
+  if (!usage?.charsPerCredit) return null;
+  const { charsPerCredit, charsBilled } = usage;
+  const charged = Math.floor((charsBilled + chars) / charsPerCredit) - Math.floor(charsBilled / charsPerCredit);
+  const cost = Math.max(1, charged);
+  if (user.plan !== 'max' && charged > user.credits) return null;
+  await compareStorageSet({ oiCompareShown: true });
+  return { cost };
+}
+
 // ===== 翻译入口 =====
 
 async function translate({ text, engine, targetLang, sourceLang = 'auto' }) {
@@ -206,6 +263,7 @@ async function translateViaSite(text, targetLang, sourceLang, tier) {
       target: siteLangName(targetLang),
       source: sourceLang === 'auto' ? 'auto' : siteLangName(sourceLang),
       mode: tier,
+      channel: 'plugin',
     }),
   });
 

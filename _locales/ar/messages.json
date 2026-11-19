@@ -1,4 +1,5 @@
 {
+  "optFeatureCounts": {"message": "مشاركة عدد مرات استخدام ميزات الترجمة مع OpenImmersive دون عناوين الصفحات أو أسماء الملفات أو النصوص"},
   "extStoreName": {
     "message": "إضافة ترجمة - ترجمة صفحات الويب ثنائية اللغة، مجانية | OpenImmersive"
   },
@@ -15,5 +16,14 @@
   },
   "acctUseGoogle": {
     "message": "استخدام Google مجانًا"
+  },
+  "comparePagePrompt": {
+    "message": "أعد ترجمة هذه الصفحة باستخدام الذكاء الاصطناعي Standard للمقارنة. التكلفة نحو $COST$ رصيد.",
+    "placeholders": {
+      "cost": { "content": "$1" }
+    }
+  },
+  "comparePageAction": {
+    "message": "قارن مع Standard"
   }
 }

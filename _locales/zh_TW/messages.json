@@ -1,4 +1,5 @@
 {
+  "optFeatureCounts": {"message": "向 OpenImmersive 分享翻譯功能使用次數（不含網址、檔名或文字）"},
   "extStoreName": {
     "message": "翻譯擴充功能 - 雙語對照網頁翻譯，免費開源 | OpenImmersive"
   },
@@ -15,5 +16,14 @@
   },
   "acctUseGoogle": {
     "message": "使用免費 Google 翻譯"
+  },
+  "comparePagePrompt": {
+    "message": "用 Standard AI 重新翻譯這一頁來比較，約 $COST$ 點。",
+    "placeholders": {
+      "cost": { "content": "$1" }
+    }
+  },
+  "comparePageAction": {
+    "message": "用 Standard 比較"
   }
 }

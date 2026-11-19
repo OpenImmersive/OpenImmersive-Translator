@@ -1,9 +1,10 @@
 {
+  "optFeatureCounts": {"message": "Share translation feature counts with OpenImmersive (no URLs, file names or text)"},
   "extName": {
     "message": "OpenImmersive Translator"
   },
   "extDesc": {
-    "message": "Open-source, privacy-first bilingual web translation with PDF support (layout kept, translated text selectable). Free engines built in, BYOK supported, every request goes straight from your browser — no middle server, no data collection."
+    "message": "Open-source bilingual translation with direct engines, BYOK and optional AI tiers."
   },
   "popupTranslatePage": {
     "message": "Translate this page"
@@ -283,7 +284,7 @@
     "message": "🔒 Privacy"
   },
   "optPrivacyBody": {
-    "message": "Every translation request goes straight from your browser to the translation provider — no middle server, no proxy, no data collection. API keys stay on this device. The code is open source and auditable."
+    "message": "Direct engines contact the provider. AI tiers use OpenImmersive. Optional feature counts are off by default. API keys stay on this device."
   },
   "optSave": {
     "message": "Save settings"
@@ -295,7 +296,7 @@
     "message": "OpenImmersive Translator · AGPL-3.0 ·"
   },
   "optFooterTail": {
-    "message": "· no data collection, no telemetry"
+    "message": "· optional feature counts"
   },
   "optShow": {
     "message": "Show"
@@ -527,5 +528,14 @@
     "message": "Translate Extension - Side by Side, Open Source | OpenImmersive"
   },
   "errFastQuota": {"message": "This month's Fast limit is used up. Try again next month."},
-  "acctFastPlus": {"message": "View Plus · 10 million Fast characters per month"}
+  "acctFastPlus": {"message": "View Plus · 10 million Fast characters per month"},
+  "comparePagePrompt": {
+    "message": "Try translating this page again with Standard AI. About $COST$ credits.",
+    "placeholders": {
+      "cost": { "content": "$1" }
+    }
+  },
+  "comparePageAction": {
+    "message": "Compare with Standard"
+  }
 }

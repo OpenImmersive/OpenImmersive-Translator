@@ -28,7 +28,7 @@ The vision is to make AI-powered translation more trustworthy, easier to use, an
 ## Features
 
 - **Bilingual, in place** — side-by-side translation on the page you are reading. No copy-paste, no uploading your content to someone else's website. Toggle with `Alt+T`.
-- **Privacy by architecture** — with the free engines or your own API key, translation requests go directly from your browser to the engine you choose, with no server of ours in between, and the extension sends no telemetry ([privacy policy](PRIVACY.md)). The optional Standard and Premium AI tiers are the exception: they send the text to openimmersive.ai, need an openimmersive.ai account and spend credits (see the [website privacy policy](https://openimmersive.ai/privacy)).
+- **Privacy by architecture** — with the free engines or your own API key, translation requests go directly from your browser to the engine you choose, with no server of ours in between, and optional feature usage reporting is off by default ([privacy policy](PRIVACY.md)). The optional Standard and Premium AI tiers are the exception: they send the text to openimmersive.ai, need an openimmersive.ai account and spend credits (see the [website privacy policy](https://openimmersive.ai/privacy)).
 - **Sensitive-data masking (Beta)** — optional, off by default. Emails, phone numbers, bank card numbers (Luhn-validated), national ID numbers, and API keys (`sk-…`, `ghp_…`, `AKIA…`, JWT, …) are detected **locally**, replaced with placeholders before the text is sent to any engine, and restored locally afterwards. The originals never leave your browser. See [`sensitive-mask.js`](sensitive-mask.js).
 - **Transparent engines, BYOK** — free out of the box with no account (Google, Microsoft, MyMemory), LibreTranslate on an official or self-hosted instance; bring your own key for DeepL / OpenAI / DeepSeek. Keys are stored in `storage.local` only.
 - **LibreTranslate setup** — enter your instance URL in Settings. The official hosted instance requires an API key. Leave the key blank for a self-hosted instance that allows anonymous requests.
@@ -87,3 +87,7 @@ You may use, study, modify, and distribute this project under the terms of the A
 If you modify this project, distribute it, or make it available as part of a network service, you must make the corresponding source code available under the same license.
 
 For commercial closed-source use, please contact the project maintainer for a separate commercial license.
+
+### Optional usage counts
+
+Usage reporting is off by default. Enable it in Settings to count starts of page, hover, selection, input-field and file translation. Reports contain only the feature name, without page URLs, file names, source text or translations.

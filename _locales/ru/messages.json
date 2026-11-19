@@ -1,4 +1,5 @@
 {
+  "optFeatureCounts": {"message": "Делиться с OpenImmersive числом использований функций перевода (без URL, имён файлов и текста)"},
   "extStoreName": {
     "message": "Расширение-переводчик - двуязычный перевод страниц | OpenImmersive"
   },
@@ -15,5 +16,14 @@
   },
   "acctUseGoogle": {
     "message": "Переводить через Google бесплатно"
+  },
+  "comparePagePrompt": {
+    "message": "Переведите эту страницу заново с ИИ Standard и сравните результат. Примерно $COST$ кр.",
+    "placeholders": {
+      "cost": { "content": "$1" }
+    }
+  },
+  "comparePageAction": {
+    "message": "Сравнить со Standard"
   }
 }

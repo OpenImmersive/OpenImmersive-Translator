@@ -6,8 +6,8 @@
 (function () {
   // Interface language follows the browser (chrome.i18n). A missing key falls
   // back to the key name rather than a blank control.
-  const T = (k) => {
-    try { return (typeof browser !== 'undefined' ? browser : chrome).i18n.getMessage(k) || k; }
+  const T = (k, substitutions) => {
+    try { return (typeof browser !== 'undefined' ? browser : chrome).i18n.getMessage(k, substitutions) || k; }
     catch { return k; }
   };
   if (window.__yllLoaded) return;
@@ -246,6 +246,7 @@
       return;
     }
 
+    void api.runtime.sendMessage({ type: 'featureUse', feature: 'selection' }).catch(() => {});
     const range = sel.getRangeAt(0);
     const rect = range.getBoundingClientRect();
     showPopup(rect, T('popupTranslating'), true);
@@ -660,6 +661,7 @@
     e.stopPropagation();
     try {
       const codes = [];
+      void api.runtime.sendMessage({ type: 'featureUse', feature: 'input' }).catch(() => {});
       const resp = await translateKept(text.trim(), inputWithCode(text.trim(), codes), codes, inputTargetLang, state.engine);
       if (resp && resp.success && resp.translation) {
         if (isCE) { el.innerText = resp.translation; }
@@ -719,6 +721,7 @@
     const block = findHoverBlock(e.target);
     if (!block || block === lastHoverEl || block.dataset.yllDone) return;
     lastHoverEl = block;
+    void api.runtime.sendMessage({ type: 'featureUse', feature: 'hover' }).catch(() => {});
     translateBlock(block);
   }, true);
   // 松开触发键后重置，允许再次划过同一段落触发
@@ -738,16 +741,18 @@
 
   // auto：自动翻译名单触发的（不是用户按的）。账号被拒停下以后，只有用户
   // 自己再按一次翻译（或换引擎）才重试，自动触发不算。
-  async function translatePage({ auto = false } = {}) {
+  async function translatePage({ auto = false, engine } = {}) {
     if (state.isTranslating) return;
+    hideComparison();
     if (halted && auto) return;
     halted = null;
     hideAccountNotice();
 
     const settings = await getSettings();
-    state.engine = settings.engine || 'google';
+    state.engine = engine || settings.engine || 'google';
     state.targetLang = settings.targetLang || 'zh-CN';
     state.displayMode = settings.displayMode || 'bilingual';
+    void api.runtime.sendMessage({ type: 'featureUse', feature: 'page' }).catch(() => {});
     state.isTranslating = true;
     syncBallMenu();
     const sess = session;
@@ -773,11 +778,58 @@
       // 只是把不存在的译文撤掉，用户永远回不到重试那一步。
       state.isTranslated = state.translatedCount > 0;
       if (!state.isTranslated) { stopDomWatch(); resetQueues(); }
+      else if (sess === session) void maybeOfferComparison();
     } finally {
       state.isTranslating = false;
       hideProgressBar();
       syncBallMenu();
     }
+  }
+
+  const freeCompareEngines = new Set(['google', 'microsoft', 'mymemory']);
+  let comparePageKey;
+  let compareNotice;
+  async function maybeOfferComparison() {
+    const pageKey = pageKeyOf(location.href);
+    if (!freeCompareEngines.has(state.engine) || comparePageKey === pageKey) return;
+    comparePageKey = pageKey;
+    const chars = collectBlocks().reduce((total, block) => total + extractText(block).trim().length, 0);
+    const offer = await api.runtime.sendMessage({ type: 'oiCompareOffer', chars }).catch(() => null);
+    if (!offer || pageKey !== pageKeyOf(location.href) || !state.isTranslated || !freeCompareEngines.has(state.engine)) return;
+    const box = document.createElement('div');
+    box.id = 'yll-acct-notice';
+    box.dataset.yllUi = 'true';
+    box.setAttribute('role', 'status');
+    const text = document.createElement('div');
+    text.className = 'yll-acct-text';
+    text.textContent = T('comparePagePrompt', [String(offer.cost)]);
+    const row = document.createElement('div');
+    row.className = 'yll-acct-actions';
+    const action = document.createElement('button');
+    action.type = 'button';
+    action.className = 'yll-acct-btn yll-acct-primary';
+    action.textContent = T('comparePageAction');
+    action.onclick = () => {
+      hideComparison();
+      if (pageKey !== pageKeyOf(location.href) || state.isTranslating) return;
+      removeTranslations();
+      void translatePage({ engine: 'oi-standard' });
+    };
+    const close = document.createElement('button');
+    close.type = 'button';
+    close.className = 'yll-acct-close';
+    close.textContent = '×';
+    close.setAttribute('aria-label', T('acctDismiss'));
+    close.onclick = hideComparison;
+    row.append(action);
+    box.append(text, row, close);
+    document.body.appendChild(box);
+    compareNotice = box;
+  }
+
+  function hideComparison() {
+    compareNotice?.remove();
+    compareNotice = null;
   }
 
   // ===== 调度：视口优先、临近的后台补、远处的滚到才翻 =====
@@ -1180,6 +1232,7 @@
 
   function showAccountNotice(h) {
     hideAccountNotice();
+    hideComparison();
     if (!document.body) return;
     const box = document.createElement('div');
     box.id = 'yll-acct-notice';
@@ -2108,6 +2161,7 @@
   }
 
   function removeTranslations() {
+    hideComparison();
     session++;
     stopDomWatch();
     resetQueues();

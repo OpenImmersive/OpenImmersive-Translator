@@ -1,4 +1,5 @@
 {
+  "optFeatureCounts": {"message": "Çeviri özelliklerinin kullanım sayılarını OpenImmersive ile paylaş (URL, dosya adı veya metin içermez)"},
   "extStoreName": {
     "message": "Çeviri eklentisi - iki dilli sayfa çevirisi, açık kaynak | OpenImmersive"
   },
@@ -15,5 +16,14 @@
   },
   "acctUseGoogle": {
     "message": "Ücretsiz Google Çeviri’yi kullan"
+  },
+  "comparePagePrompt": {
+    "message": "Karşılaştırmak için bu sayfayı Standard yapay zekâ ile yeniden çevirin. Yaklaşık $COST$ kredi.",
+    "placeholders": {
+      "cost": { "content": "$1" }
+    }
+  },
+  "comparePageAction": {
+    "message": "Standard ile karşılaştır"
   }
 }

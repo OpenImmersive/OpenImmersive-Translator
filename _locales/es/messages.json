@@ -1,4 +1,5 @@
 {
+  "optFeatureCounts": {"message": "Compartir con OpenImmersive el número de usos de cada función de traducción, sin URL, nombres de archivo ni texto"},
   "extStoreName": {
     "message": "Extensión para traducir páginas - bilingüe, gratis | OpenImmersive"
   },
@@ -15,5 +16,14 @@
   },
   "acctUseGoogle": {
     "message": "Usar Google gratis"
+  },
+  "comparePagePrompt": {
+    "message": "Vuelve a traducir esta página con la IA de Standard para comparar. Unos $COST$ créditos.",
+    "placeholders": {
+      "cost": { "content": "$1" }
+    }
+  },
+  "comparePageAction": {
+    "message": "Comparar con Standard"
   }
 }
