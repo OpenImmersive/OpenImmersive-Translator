@@ -13,7 +13,7 @@ OpenImmersive Translator 是一款开源、隐私优先的双语网页翻译浏�
 - **敏感信息脱敏（可选，默认关闭）**：开启后，扩展在你的浏览器**本地**识别邮箱、电话、银行卡号、身份证号、API Key，先替换为占位符再发给翻译引擎，收到译文后在本地还原。被打码的敏感内容原文不会发往任何翻译服务商，该功能不依赖任何服务器。
 - **API Key（BYOK）**：你自行配置的 API Key 仅保存在浏览器本地存储（`storage.local`）中，只用于向对应引擎发起请求，绝不会发送到其他任何地方。
 - **设置项**：目标语言、引擎选择等偏好仅保存在浏览器本地。
-- **无跟踪**：不含任何统计、分析、广告或指纹代码。
+- **可选使用次数统计**：默认关闭。启用后只统计整页、悬停、划词、输入框和文件翻译的启动次数，不包含网址、文件名、原文或译文。无广告或指纹代码。
 - **可审计**：全部源代码开源（AGPL-3.0），任何人可以验证以上声明与代码行为一致。
 
 权限说明：
@@ -36,12 +36,12 @@ OpenImmersive Translator is an open-source, privacy-first bilingual webpage tran
 
 **With the free engines or your own API key, we collect no data.** Specifically:
 
-- **No middle server**: with the free engines or your own key, translation requests go directly from your browser to the translation engine you choose (Google, DeepL, OpenAI, etc.), never through a server of ours. The extension contains no telemetry.
+- **No middle server**: with the free engines or your own key, translation requests go directly from your browser to the translation engine you choose (Google, DeepL, OpenAI, etc.), never through a server of ours. Optional feature usage reporting is off by default.
 - **Text to translate** is sent only to your chosen engine to obtain the translation, governed by that engine's own privacy policy.
 - **Sensitive-data masking (optional, off by default)**: when enabled, the extension detects emails, phone numbers, card numbers, national ID numbers, and API keys **locally in your browser**, replaces them with placeholders before sending text to the engine, and restores them locally afterwards. Masked originals are never sent to any translation provider; no server is involved.
 - **API keys (BYOK)** are stored only in your browser's local storage (`storage.local`), used only to call the corresponding engine, and never sent anywhere else.
 - **Preferences** (target language, engine choice) are stored locally.
-- **No tracking**: no analytics, ads, or fingerprinting code of any kind.
+- **Optional usage counts**: reporting is off by default. When enabled, it counts starts of full-page, hover, selection, input-field and file translation, without page URLs, file names, source text or translations. The extension has no ads or fingerprinting code.
 - **Auditable**: the full source code is open (AGPL-3.0); anyone can verify these claims against the code.
 
 Permissions:
